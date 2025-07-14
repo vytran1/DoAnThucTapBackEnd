@@ -38,8 +38,17 @@ public class Product {
 
    
     public Product() {}
+    
+    
 
-    public Integer getId() {
+    public Product(Integer id) {
+		super();
+		this.id = id;
+	}
+
+
+
+	public Integer getId() {
         return id;
     }
 

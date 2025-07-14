@@ -1,5 +1,6 @@
 package com.thuctap.product.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +14,8 @@ public class ProductSaveInformationDTO {
 	
 	private Integer brand;
 	private Integer category;
+	@JsonProperty("base_price")
+	private BigDecimal basePrice;
 	
 	@JsonProperty("product_attributes")
 	private List<ProductAttributesDTO> attributes;
@@ -63,6 +66,16 @@ public class ProductSaveInformationDTO {
 
 	public void setVariants(List<ProductVariantDTO> variants) {
 		this.variants = variants;
+	}
+	
+	
+
+	public BigDecimal getBasePrice() {
+		return basePrice;
+	}
+
+	public void setBasePrice(BigDecimal basePrice) {
+		this.basePrice = basePrice;
 	}
 
 	@Override
