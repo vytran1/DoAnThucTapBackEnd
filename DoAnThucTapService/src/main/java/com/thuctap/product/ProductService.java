@@ -41,6 +41,7 @@ import com.thuctap.product_image.dto.ProductImageDTO;
 import com.thuctap.product_variant.ProductVariantRepository;
 import com.thuctap.product_variant.dto.ProductVariantDTO;
 import com.thuctap.product_variant.dto.ProductVariantDetailDTO;
+import com.thuctap.product_variant.dto.ProductVariantInventoryDTO;
 import com.thuctap.utility.PageDTO;
 import com.thuctap.utility.UtilityGlobal;
 
@@ -92,6 +93,16 @@ public class ProductService {
 		ProductFindAllDTOList list = setUpResult(pages, sortField, sortDir);
 		
 		return list;
+		
+	}
+	
+	
+	
+	public List<ProductVariantInventoryDTO> getVariantWithStockingInformation(Integer productId){
+		
+		List<ProductVariantInventoryDTO> result = productVariantRepository.findProductVariantWithInventoryDetails(productId);
+		
+		return result;
 		
 	}
 	

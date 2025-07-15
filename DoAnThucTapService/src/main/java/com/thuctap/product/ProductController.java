@@ -1,7 +1,9 @@
 package com.thuctap.product;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import com.thuctap.product.dto.ProductImageAggregatorDTO;
 import com.thuctap.product.dto.ProductOverviewDTO;
 import com.thuctap.product.dto.ProductSaveInformationDTO;
 import com.thuctap.product_image.dto.ProductImageDTO;
+import com.thuctap.product_variant.dto.ProductVariantInventoryDTO;
 
 @RestController
 @RequestMapping("/api/products")
@@ -72,6 +75,16 @@ public class ProductController {
 			Map<String,String> map = Map.of("message",e.getMessage());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(map);
 		}
+	}
+	
+	
+	@GetMapping("/{id}/inventory")
+	public ResponseEntity<?> getProductVariantDetailsWithStockingInformation(@PathVariable("id") Integer id){
+		
+		List<ProductVariantInventoryDTO> result = productService.getVariantWithStockingInformation(id);
+		
+		return ResponseEntity.ok(result);
+		
 	}
 	
 	

@@ -57,6 +57,15 @@ public class InventoryEmployee {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+    
+    
+
+	public InventoryEmployee(Integer id) {
+		super();
+		this.id = id;
+	}
+
+
 
 	public Integer getId() {
         return id;
