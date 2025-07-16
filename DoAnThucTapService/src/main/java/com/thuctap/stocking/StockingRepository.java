@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.thuctap.common.stocking.Stocking;
 import com.thuctap.common.stocking.StockingId;
+import com.thuctap.stocking.dto.StockingInventorySearchDTO;
 import com.thuctap.stocking.dto.StockingProductSearchDTO;
 
 public interface StockingRepository extends JpaRepository<Stocking,StockingId> {
@@ -25,6 +26,22 @@ public interface StockingRepository extends JpaRepository<Stocking,StockingId> {
 			GROUP BY iv.inventoryCode
 			""")
 	public List<StockingProductSearchDTO> findStockingOfProduct(String sku);
+	
+	
+	
+	
+	@Query("""
+			SELECT new com.thuctap.stocking.dto.StockingInventorySearchDTO(
+				p.id, p.image, pv.sku, s.quantity
+			) 
+			FROM Stocking s
+			INNER JOIN s.productVariant pv
+			INNER JOIN pv.product p
+			WHERE s.inventory.id = ?1
+			""")
+	public List<StockingInventorySearchDTO> findStockingOfInventory(Integer id);
+	
+	
 	
 	
 	

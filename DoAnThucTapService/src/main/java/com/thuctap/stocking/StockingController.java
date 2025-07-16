@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thuctap.common.exceptions.VariantNotFoundException;
+import com.thuctap.stocking.dto.StockingInventorySearchDTO;
 import com.thuctap.stocking.dto.StockingProductSearchDTO;
 
 @RestController
@@ -31,9 +32,15 @@ public class StockingController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		
 	}
 	
 	
+	@GetMapping("/inventory/{id}")
+	public ResponseEntity<List<StockingInventorySearchDTO>> getStockingOfInventory(@PathVariable("id") Integer id){
+		
+		List<StockingInventorySearchDTO> result = stockingService.getStockingOfInventory(id);
+		
+		return ResponseEntity.ok(result);
+	}
 	
 }

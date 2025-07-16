@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.thuctap.common.exceptions.VariantNotFoundException;
 import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.product_variant.ProductVariantRepository;
+import com.thuctap.stocking.dto.StockingInventorySearchDTO;
 import com.thuctap.stocking.dto.StockingProductSearchDTO;
 
 @Service
@@ -35,6 +36,11 @@ public class StockingService {
 			throw new VariantNotFoundException("Not Exist Product Variant With The Given Sku code");
 		}
 		
+	}
+	
+	
+	public List<StockingInventorySearchDTO> getStockingOfInventory(Integer id){
+		return repository.findStockingOfInventory(id);
 	}
 	
 	
