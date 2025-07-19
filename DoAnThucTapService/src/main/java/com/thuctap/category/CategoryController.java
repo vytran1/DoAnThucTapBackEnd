@@ -28,4 +28,10 @@ public class CategoryController {
 		
 	}
 	
+	
+	@GetMapping("list/drop-down")
+	public ResponseEntity<List<CategoryDropDownList>> getAllCategoriesForDropDownList(){
+		return ResponseEntity.ok(categoryService.getAllCategoriesForDropdownList());
+	}
+	
 }

@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thuctap.common.exceptions.VariantNotFoundException;
 import com.thuctap.product_variant.dto.CheckExistOfSkuCodeRequest;
 import com.thuctap.product_variant.dto.CheckExistOfSkuCodeResponse;
 import com.thuctap.product_variant.dto.ProductVariantDetailDTO;
+import com.thuctap.product_variant.dto.ProductVariantForTransactionAggregator;
 
 @RestController
 @RequestMapping("/api/variants")
@@ -41,5 +43,28 @@ public class ProductVariantController {
 			return ResponseEntity.notFound().build();
 		}
 	}
+	
+	
+	@GetMapping("/search")
+	public ResponseEntity<ProductVariantForTransactionAggregator> searchForTransaction(
+				@RequestParam(value = "pageNum",defaultValue = "1") Integer pageNum,
+				@RequestParam(value = "pageSize", defaultValue = "50") Integer pageSize,
+				@RequestParam(value = "sortField", defaultValue = "id") String sortField,
+				@RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
+				@RequestParam(value = "name", defaultValue = "", required = false) String variantName,
+				@RequestParam(value = "categoryId",required = false) Integer categoryId
+			){
+		
+		ProductVariantForTransactionAggregator result = service.findAllVariantForTransactions(pageNum
+				,pageSize, 
+				sortField, 
+				sortDir, 
+				variantName, 
+				categoryId);
+		return ResponseEntity.ok(result);
+		
+	}
+	
+	
 	
 }

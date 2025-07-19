@@ -5,11 +5,13 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.thuctap.common.product.Product;
+import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.product.dto.ProductFindAllDTO;
 import com.thuctap.product.dto.ProductOverviewDTO;
 
@@ -26,6 +28,8 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 			WHERE p.isDelete = false
 			""")
 	Page<ProductFindAllDTO> findAllWithSkuCode(Pageable pageable);
+	
+	
 	
 	
 	
@@ -48,5 +52,6 @@ public interface ProductRepository extends JpaRepository<Product,Integer> {
 	
 	@Query("SELECT p.image FROM Product p WHERE p.id = ?1")
 	public String findMainImageByProductId(Integer id);
+	
 
 }

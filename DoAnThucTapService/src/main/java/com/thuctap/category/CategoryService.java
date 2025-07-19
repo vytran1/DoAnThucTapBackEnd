@@ -14,9 +14,16 @@ public class CategoryService {
 	@Autowired
 	private BrandCategoryRepository repository;
 	
+	@Autowired
+	private CategoryRepository categoryRepository;
+	
 	
 	public List<CategoryDropDownList> getAllCategoriesBelongToABrand(Integer brandId){
 		return repository.findCategoriesByBrandId(brandId);
+	}
+	
+	public List<CategoryDropDownList> getAllCategoriesForDropdownList(){
+		return categoryRepository.findForDropDownList(); 
 	}
 	
 	

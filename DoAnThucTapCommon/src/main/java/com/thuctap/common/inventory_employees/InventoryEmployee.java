@@ -154,4 +154,9 @@ public class InventoryEmployee {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    
+    @Transient
+    public String getFullName() {
+    	return this.firstName + " " + this.lastName;
+    }
 }

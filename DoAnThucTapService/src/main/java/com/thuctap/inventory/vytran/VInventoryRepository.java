@@ -22,4 +22,10 @@ public interface VInventoryRepository extends JpaRepository<Inventory,Integer>{
 			""")
 	public List<InventoryListSearchDTO> searchByName(String name);
 	
+	
+	@Query("""
+			SELECT iv FROM Inventory iv WHERE iv.inventoryCode = ?1
+			""")
+	public Inventory findByInventoryCode(String inventoryCode);
+	
 }

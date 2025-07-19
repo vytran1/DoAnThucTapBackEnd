@@ -3,6 +3,9 @@ package com.thuctap.product_variant;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,7 +34,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant,I
 	@Query("SELECT pv FROM ProductVariant pv WHERE pv.sku = ?1")
 	public Optional<ProductVariant> findBySkuCode(String sku);
 	
-	
+	public Page<ProductVariant> findAll(Specification<ProductVariant> spec,Pageable pageable);
 	
 	
 	@Query("""
@@ -50,6 +53,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant,I
 	public List<ProductVariantInventoryDTO> findProductVariantWithInventoryDetails(Integer productId);
 	
 	
-	
+	@Query("SELECT pv FROM ProductVariant pv WHERE pv.sku = ?1")
+	public Optional<ProductVariant> findProductVariantIdBySkuCode(String sku);
 	
 }

@@ -47,10 +47,21 @@ public class ProductVariant {
 
     // Constructors
     public ProductVariant() {}
+    
+    
+    
 
     // Getters & Setters
 
-    public Integer getId() {
+    public ProductVariant(Integer id) {
+		super();
+		this.id = id;
+	}
+
+
+
+
+	public Integer getId() {
         return id;
     }
 

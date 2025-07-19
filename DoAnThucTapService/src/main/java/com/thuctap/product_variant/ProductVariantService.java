@@ -1,9 +1,15 @@
 package com.thuctap.product_variant;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.thuctap.audit.AuditRepository;
@@ -11,9 +17,13 @@ import com.thuctap.common.audit.Audit;
 import com.thuctap.common.exceptions.VariantNotFoundException;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
 import com.thuctap.common.product_variant.ProductVariant;
+import com.thuctap.product.ProductSpecification;
 import com.thuctap.product_variant.dto.CheckExistOfSkuCodeResponse;
 import com.thuctap.product_variant.dto.ProductVariantDTO;
 import com.thuctap.product_variant.dto.ProductVariantDetailDTO;
+import com.thuctap.product_variant.dto.ProductVariantForTransactionAggregator;
+import com.thuctap.product_variant.dto.ProductVariantForTransactionDTO;
+import com.thuctap.utility.PageDTO;
 import com.thuctap.utility.UtilityGlobal;
 
 @Service
@@ -34,6 +44,60 @@ public class ProductVariantService {
 		
 		return response;
 	}
+	
+	
+	
+	
+	public ProductVariantForTransactionAggregator findAllVariantForTransactions(int pageNum, 
+			int pageSize, 
+			String sortField, 
+			String sortDir, 
+			String name,
+			Integer categoryId){
+		
+		
+		
+		
+		Pageable pageable = setupPageRequestObject(pageNum, pageSize, sortField, sortDir);
+		
+		Specification<ProductVariant> specification = ProductSpecification.hasName(name).and(ProductSpecification.hasCategory(categoryId));
+		
+		Page<ProductVariant> pages = productVariantRepository.findAll(specification,pageable);
+		
+		ProductVariantForTransactionAggregator result = buildResult(pages,sortField,sortDir);
+		
+		return result;
+		
+	}  
+	
+	
+	private ProductVariantForTransactionAggregator buildResult(Page<ProductVariant> pages, String sortField, String sortDir) {
+		
+		PageDTO page = UtilityGlobal.buildPageDTO(sortField, sortDir, pages);
+		
+		
+		List<ProductVariantForTransactionDTO> variants = pages.getContent().stream().map(ProductVariantMapper::toVariantForTransaction).toList();
+		
+		
+		ProductVariantForTransactionAggregator result = new ProductVariantForTransactionAggregator();
+		
+		result.setPage(page);
+		result.setVariants(variants);
+		
+		return result;
+		
+	}
+	
+	
+	public Pageable setupPageRequestObject(int pageNum, int pageSize, String sortField, String sortDir) {
+		Sort sort = Sort.by(sortField);
+		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+		
+		Pageable pageable = PageRequest.of(pageNum - 1, pageSize, sort);
+		return pageable;
+	}
+	
+	
 	
 	
 	
