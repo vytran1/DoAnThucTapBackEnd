@@ -20,6 +20,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.thuctap.common.exceptions.OrderNotFoundException;
+import com.thuctap.common.exceptions.StatusNotFoundException;
+import com.thuctap.common.exceptions.SupplierNotFoundException;
 import com.thuctap.security.jwt.JwtValidationException;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,29 +30,27 @@ import jakarta.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class GlobalHandleException extends ResponseEntityExceptionHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalHandleException.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalHandleException.class);
 
-    @Override
+	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		ErrorDTO error = new ErrorDTO();
 		error.setTimestamp(new Date());
 		error.setStatus(HttpStatus.BAD_REQUEST.value());
-		error.setPath( ((ServletWebRequest) request).getRequest().getServletPath() );
-		
+		error.setPath(((ServletWebRequest) request).getRequest().getServletPath());
+
 		List<FieldError> listErrors = ex.getBindingResult().getFieldErrors();
 		listErrors.forEach((fieldError) -> error.addError(fieldError.getDefaultMessage()));
-		LOGGER.error(ex.getMessage(),ex);
-		return new ResponseEntity(error,headers,status);
+		LOGGER.error(ex.getMessage(), ex);
+		return new ResponseEntity(error, headers, status);
 	}
-    
 
-	
 	@ResponseBody
 	@ExceptionHandler(ConstraintViolationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorDTO handleConstraintViolationException(HttpServletRequest request,Exception exception) {
-		
+	public ErrorDTO handleConstraintViolationException(HttpServletRequest request, Exception exception) {
+
 		ConstraintViolationException conException = (ConstraintViolationException) exception;
 		var contrasinInValid = conException.getConstraintViolations();
 		ErrorDTO error = new ErrorDTO();
@@ -59,52 +60,74 @@ public class GlobalHandleException extends ResponseEntityExceptionHandler {
 			error.addError(item.getPropertyPath() + ": " + item.getMessage());
 		});
 		error.setPath(request.getServletPath());
-		
-		LOGGER.error(exception.getMessage(),exception);
+
+		LOGGER.error(exception.getMessage(), exception);
 		return error;
 	}
-	
-	
+
 	@ResponseBody
 	@ExceptionHandler(JwtValidationException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorDTO handleJwtValidationException(HttpServletRequest request,Exception exception) {
-		
-		
+	public ErrorDTO handleJwtValidationException(HttpServletRequest request, Exception exception) {
+
 		ErrorDTO error = new ErrorDTO();
 		error.setTimestamp(new Date());
 		error.setStatus(HttpStatus.BAD_REQUEST.value());
 		error.addError(exception.getMessage());
 		error.setPath(request.getServletPath());
-		
-		LOGGER.error(exception.getMessage(),exception);
+
+		LOGGER.error(exception.getMessage(), exception);
 		return error;
 	}
-	
+
 	@ResponseBody
 	@ExceptionHandler(IllegalArgumentException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorDTO handleIllegalArgumentException(HttpServletRequest request,Exception exception) {
-		
-		
+	public ErrorDTO handleIllegalArgumentException(HttpServletRequest request, Exception exception) {
+
 		ErrorDTO error = new ErrorDTO();
 		error.setTimestamp(new Date());
 		error.setStatus(HttpStatus.BAD_REQUEST.value());
 		error.addError(exception.getMessage());
 		error.setPath(request.getServletPath());
-		
-		LOGGER.error(exception.getMessage(),exception);
+
+		LOGGER.error(exception.getMessage(), exception);
 		return error;
 	}
-	
+
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
-        // Thông báo lỗi khi kiểu dữ liệu không khớp
-        String errorMessage = "Invalid value for parameter '" + ex.getName() + "'. Expected type is " + ex.getRequiredType().getName();
-        ErrorDTO errorDTO = new ErrorDTO();
-        errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
-        errorDTO.addError(errorMessage);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
-    }
+	public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+		String errorMessage = "Invalid value for parameter '" + ex.getName() + "'. Expected type is "
+				+ ex.getRequiredType().getName();
+		ErrorDTO errorDTO = new ErrorDTO();
+		errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
+		errorDTO.addError(errorMessage);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
+	}
+
+	@ExceptionHandler(OrderNotFoundException.class)
+	public ResponseEntity<?> handleOrderNotFound(OrderNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	}
+
+	@ExceptionHandler(SupplierNotFoundException.class)
+	public ResponseEntity<?> handleSupplierNotFound(SupplierNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	}
+
+	@ExceptionHandler(StatusNotFoundException.class)
+	public ResponseEntity<?> handleStatusNotFound(StatusNotFoundException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<?> handleIllegalState(IllegalStateException e) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	}
 	
+//	@ExceptionHandler(IllegalArgumentException.class)
+//	public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException e) {
+//		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//	}
+
 }

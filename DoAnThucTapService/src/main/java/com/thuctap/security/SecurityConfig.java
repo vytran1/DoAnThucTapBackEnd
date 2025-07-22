@@ -63,6 +63,11 @@ public class SecurityConfig {
 				.requestMatchers("/api/auth/**","/api/forgot_password","/api/reset_password").permitAll()
 				.requestMatchers("/employee-images/**").permitAll()
 				.requestMatchers("/product-images/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/orders/*/quote/supplier/*").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/orders/*/quote/reject/supplier/*").permitAll()
+				.requestMatchers(HttpMethod.POST,"/api/orders/*/supplier/*/confirm/payed").permitAll()
+				.requestMatchers(HttpMethod.POST,"/api/orders/*/supplier/*/status/shipping").permitAll()
+				.requestMatchers(HttpMethod.POST,"/api/orders/*/supplier/*/status/arriving").permitAll()
 				.anyRequest().authenticated())
 		        .csrf(csrf -> csrf.disable())
 				.exceptionHandling(exh -> exh.authenticationEntryPoint((request, response, exception) -> {

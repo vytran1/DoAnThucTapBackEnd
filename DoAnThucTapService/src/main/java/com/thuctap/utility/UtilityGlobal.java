@@ -1,5 +1,9 @@
 package com.thuctap.utility;
 
+import java.text.SimpleDateFormat;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,5 +52,34 @@ public class UtilityGlobal {
 		pageInfo.setTotalItems(pages.getTotalElements());
 		return pageInfo;
 	}
+	
+	public static String getCellValue(Cell cell) {
+	    if (cell == null) return "";
+	    switch (cell.getCellType()) {
+	        case STRING:
+	            return cell.getStringCellValue().trim();
+	        case NUMERIC:
+	            if (DateUtil.isCellDateFormatted(cell)) {
+	                return new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
+	            } else {
+	                double value = cell.getNumericCellValue();
+	                if (value == Math.floor(value)) {
+	                    return String.valueOf((long) value);
+	                }
+	                return String.valueOf(value);
+	            }
+	        case BOOLEAN:
+	            return String.valueOf(cell.getBooleanCellValue());
+	        case FORMULA:
+	            try {
+	                return cell.getStringCellValue();
+	            } catch (IllegalStateException e) {
+	                return String.valueOf(cell.getNumericCellValue());
+	            }
+	        default:
+	            return "";
+	    }
+	}
+
 	
 }

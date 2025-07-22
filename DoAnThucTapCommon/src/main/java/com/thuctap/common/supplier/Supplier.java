@@ -44,6 +44,9 @@ public class Supplier {
 	    @Column(name = "is_delete")
 	    private Boolean isDelete;
 	    
+	    @Column(name = "secret_key")
+	    private String secretKey;
+	    
 	    
 	    
 
@@ -136,8 +139,18 @@ public class Supplier {
 		public void setIsDelete(Boolean isDelete) {
 			this.isDelete = isDelete;
 		}
+		
+		
 	    
-	    @Transient
+	    public String getSecretKey() {
+			return secretKey;
+		}
+
+		public void setSecretKey(String secretKey) {
+			this.secretKey = secretKey;
+		}
+
+		@Transient
 	    public String getFullContact() {
 	    	return this.name + "-" + this.supplierCode; 
 	    }

@@ -1,9 +1,12 @@
 package com.thuctap.inventory_order;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.thuctap.common.inventory_order.InventoryOrderDetail;
 import com.thuctap.common.inventory_order.InventoryOrderDetailId;
@@ -29,6 +32,13 @@ public interface InventoryOrderDetailRepository extends JpaRepository<InventoryO
 			WHERE iod.order.id = ?1
 			""")
 	public List<InventoryOrderDetailForOverviewDTO> findAllDetailsBelongToAOrderForOverview(Integer id);
-
+	
+	
+	
+	@Query("""
+			SELECT iod FROM InventoryOrderDetail iod WHERE iod.order.id = ?1
+			""")
+	public List<InventoryOrderDetail> findAllDetailsBelongToAOrder(Integer orderId);
+	
 
 }

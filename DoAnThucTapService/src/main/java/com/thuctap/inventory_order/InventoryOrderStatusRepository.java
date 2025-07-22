@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.thuctap.common.inventory_order.InventoryOrderStatus;
 import com.thuctap.common.inventory_order.InventoryOrderStatusId;
@@ -31,5 +32,19 @@ public interface InventoryOrderStatusRepository extends JpaRepository<InventoryO
 			 ORDER BY ios.createdAt ASC
 			""")
 	public List<InventoryOrderStatus> getAllStatusBelongToOneOrder(Integer id);
+	
+	@Query("""
+		    SELECT COUNT(ios) > 0
+		    FROM InventoryOrderStatus ios
+		    WHERE ios.order.id = :orderId
+		      AND ios.supplier.id = :supplierId
+		      AND ios.status.name IN ('REVIEWED_DECIDED_PRICE', 'REVIEWED_REJECT')
+		""")
+	boolean hasSupplierAlreadyResponded(
+		    @Param("orderId") Integer orderId,
+		    @Param("supplierId") Integer supplierId
+		);
+	
+	
 	
 }
