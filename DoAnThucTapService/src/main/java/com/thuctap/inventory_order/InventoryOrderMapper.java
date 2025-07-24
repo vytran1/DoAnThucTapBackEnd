@@ -11,6 +11,7 @@ import com.thuctap.common.inventory_order.InventoryOrderDetail;
 import com.thuctap.common.inventory_order.InventoryOrderStatus;
 import com.thuctap.common.supplier.Supplier;
 import com.thuctap.inventory_order.dto.InventoryOrderDetailWithExpectedPriceDTO;
+import com.thuctap.inventory_order.dto.InventoryOrderPageDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderSavingRequestAggregatorDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderStatusDTO;
 import com.thuctap.utility.UtilityGlobal;
@@ -37,6 +38,16 @@ public class InventoryOrderMapper {
 		return detail;
 		
 	}
+	
+	public static InventoryOrderPageDTO toPageDTO(InventoryOrder order) {
+		
+		InventoryOrderPageDTO pageDTO = new InventoryOrderPageDTO();
+		pageDTO.setEmployee(order.getEmployee().getFullName());
+		pageDTO.setOrderCode(order.getOrderCode());
+		pageDTO.setStockInDate(order.getCompletedAt());
+		return pageDTO;
+	};
+	
 	
 	
 	public static InventoryOrderStatusDTO toStatus(InventoryOrderStatus entity) {

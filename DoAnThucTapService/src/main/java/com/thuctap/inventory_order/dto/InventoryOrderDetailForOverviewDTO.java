@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class InventoryOrderDetailForOverviewDTO {
 	private String name;
 	private String sku;
-	private Integer quantity;
+	private Integer quantity; 
 	
 	@JsonProperty("cost_price")
 	private BigDecimal costPrice;

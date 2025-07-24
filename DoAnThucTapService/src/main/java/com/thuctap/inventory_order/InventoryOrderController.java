@@ -1,6 +1,9 @@
 package com.thuctap.inventory_order;
 
 import java.io.FileNotFoundException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.thuctap.common.exceptions.OrderNotFoundException;
 import com.thuctap.common.exceptions.ProductNotFoundException;
@@ -26,6 +30,7 @@ import com.thuctap.common.exceptions.ProductVariantSkuNotFoundException;
 import com.thuctap.common.exceptions.StatusNotFoundException;
 import com.thuctap.common.exceptions.SupplierNotFoundException;
 import com.thuctap.inventory_order.dto.InventoryOrderOverviewDTO;
+import com.thuctap.inventory_order.dto.InventoryOrderPageDTOAggregator;
 import com.thuctap.inventory_order.dto.InventoryOrderSavingRequestAggregatorDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderStatusDTO;
 import com.thuctap.inventory_order.dto.QuoteViewResponseDTO;
@@ -38,6 +43,28 @@ public class InventoryOrderController {
 	private InventoryOrderService service;
 	
 	
+	
+	
+	
+	@GetMapping("/search")
+	public ResponseEntity<InventoryOrderPageDTOAggregator> search(
+				
+				@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+				@RequestParam(value = "pageSize", defaultValue = "3") int pageSize,
+				@RequestParam(value = "sortField", defaultValue = "id") String sortField,
+				@RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
+				@RequestParam(value = "startDate", required = false) OffsetDateTime startDate,
+				@RequestParam(value = "endDate", required = false) OffsetDateTime endDate
+			){
+		
+		 LocalDateTime start = startDate != null ? startDate.toLocalDateTime() : null;
+		 LocalDateTime end = endDate != null ? endDate.toLocalDateTime() : null;
+		
+		InventoryOrderPageDTOAggregator result = service.search(start,end, pageNum, pageSize, sortField, sortDir);
+		return ResponseEntity.ok(result);
+		
+		
+	}
 	
 	
 	@PostMapping("")
@@ -237,6 +264,8 @@ public class InventoryOrderController {
 	}
 	
 	
+	
+	
 	@PostMapping("/{id}/supplier/{code}/confirm/payed")
 	public ResponseEntity<?> confirmPayingBySupplier(@PathVariable("id") Integer id, 
 			@PathVariable("code") String code,
@@ -307,6 +336,24 @@ public class InventoryOrderController {
 			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
+	}
+	
+	
+	@PostMapping("/{id}/status/checked")
+	public ResponseEntity<?> updateCheckedStatusByEmployee(@PathVariable("id") Integer orderId){
+		
+		try {
+			InventoryOrderStatusDTO status = service.updateCheckedStatus(orderId);
+			return ResponseEntity.ok().body(status);
+		} catch (OrderNotFoundException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (StatusNotFoundException e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+		
+		
 	}
 	
 	@PostMapping("/{id}/status/finished")

@@ -19,7 +19,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -54,6 +57,8 @@ import com.thuctap.inventory.vytran.VInventoryRepository;
 import com.thuctap.inventory_order.dto.InventoryOrderDetailForOverviewDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderDetailWithExpectedPriceDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderOverviewDTO;
+import com.thuctap.inventory_order.dto.InventoryOrderPageDTO;
+import com.thuctap.inventory_order.dto.InventoryOrderPageDTOAggregator;
 import com.thuctap.inventory_order.dto.InventoryOrderSavingRequestAggregatorDTO;
 import com.thuctap.inventory_order.dto.InventoryOrderStatusDTO;
 import com.thuctap.inventory_order.dto.QuoteViewResponseDTO;
@@ -347,6 +352,20 @@ public class InventoryOrderService {
 		
 		return status;
 	}
+	
+	
+	
+	public InventoryOrderStatusDTO updateCheckedStatus(Integer orderId) throws OrderNotFoundException, StatusNotFoundException {
+		InventoryOrder inventoryOrder = checkExistingOfOrder(orderId);
+		
+		checkValidationOrderBeforeUpdatingCheckedStatusByEmployee(orderId);
+		
+		InventoryOrderStatusDTO status = updateStatus(inventoryOrder,true,11);
+		
+		return status;
+
+	}
+	
 
 	@Transactional(rollbackFor = {Exception.class, RuntimeException.class, Throwable.class})
 	public InventoryOrderStatusDTO updateFinishStatus(Integer orderId) throws OrderNotFoundException, StatusNotFoundException {
@@ -371,6 +390,29 @@ public class InventoryOrderService {
 		
 		return result;
 		
+	}
+	
+	public InventoryOrderPageDTOAggregator search(LocalDateTime startDate, 
+												LocalDateTime endDate,
+												int pageNum,
+												int pageSize,
+												String sortField,
+												String sortDir
+			) {
+		
+		Sort sort = Sort.by(sortField);
+		sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+		
+		
+		Pageable pageable = PageRequest.of(pageNum - 1, pageSize, sort);
+		
+		Page<InventoryOrderPageDTO> pages = orderRepository.search(startDate, endDate, pageable);
+		
+		InventoryOrderPageDTOAggregator aggregator = new InventoryOrderPageDTOAggregator();
+		aggregator.setOrders(pages.getContent());
+		aggregator.setPage(UtilityGlobal.buildPageDTO(sortField, sortDir, pages));
+		
+		return aggregator;
 	}
 	
 	private void updateProductPrice(List<String> listSkuCode) {
@@ -513,6 +555,34 @@ public class InventoryOrderService {
 
 		this.ensureStatusContains(currentStatusNames,"SHIPPING","Cannot proceed. The supplier has not updated shipping status.");
 
+		this.ensureStatusContains(currentStatusNames,"ARRIVING","Cannot proceed. The supplier has not deliver goods to warehouse.");
+		
+		this.ensureStatusContains(currentStatusNames,"CHECKED","Cannot proceed. The warehouse has not checked the goods");
+
+	}
+	
+	private void checkValidationOrderBeforeUpdatingCheckedStatusByEmployee(Integer orderId) {
+		List<InventoryOrderStatus> statuses = inventoryOrderStatusRepository.getAllStatusBelongToOneOrder(orderId);
+		
+		Set<String> currentStatusNames = statuses.stream().map(s -> s.getStatus().getName())
+				.collect(Collectors.toSet());
+		
+		this.ensureStatusNotContains(currentStatusNames,"CHECKED","Cannot operate this action. Because supplier already update status CHECKED");
+		
+		this.ensureStatusNotContains(currentStatusNames,"REJECT_ORDER","Cannot operate this action. The order has been rejected.");
+
+		this.ensureStatusContains(currentStatusNames,"REVIEWED_DECIDED_PRICE","Cannot proceed with payment. The price has not been reviewed.");
+
+		this.ensureStatusContains(currentStatusNames,"ACCEPTED_PRICE","Cannot proceed with payment. The price has not been accepted.");
+		
+		this.ensureStatusNotContains(currentStatusNames,"REVIEWED_REJECT","Cannot proceed with payment. The supplier has already refused to support this order.");
+		
+		this.ensureStatusContains(currentStatusNames,"PAYING","Cannot proceed. The warehouse has not initiated payment for this order.");
+		
+		this.ensureStatusContains(currentStatusNames,"PAYED","Cannot proceed. The supplier has not confirmed payment.");
+		
+		this.ensureStatusContains(currentStatusNames,"SHIPPING","Cannot proceed. The supplier has not updated shipping status.");
+		
 		this.ensureStatusContains(currentStatusNames,"ARRIVING","Cannot proceed. The supplier has not deliver goods to warehouse.");
 
 	}
@@ -980,6 +1050,8 @@ public class InventoryOrderService {
 		
 		if(Objects.equals(orderOPT.getCompletedAt(),null)) {
 			resultDTO.setCompletedAt("");
+		}else {
+			resultDTO.setCompletedAt(orderOPT.getCompletedAt().toString());
 		}
 		
 		String currentStatus = inventoryOrderStatusRepository.getCurrentStatusByOrderId(orderOPT.getId());

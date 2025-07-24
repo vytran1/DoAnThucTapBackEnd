@@ -40,5 +40,13 @@ public interface InventoryOrderDetailRepository extends JpaRepository<InventoryO
 			""")
 	public List<InventoryOrderDetail> findAllDetailsBelongToAOrder(Integer orderId);
 	
+	
+	
+	@Query("""
+			SELECT SUM(iod.quantity) 
+			FROM InventoryOrderDetail iod
+			WHERE iod.order.id = ?1
+			""")
+	public Long sumOfQuantity(Integer orderId);
 
 }

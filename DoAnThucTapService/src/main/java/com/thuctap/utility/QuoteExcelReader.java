@@ -144,7 +144,6 @@ public class QuoteExcelReader implements QuoteFileReader {
 	    Map<String, String> map = extractKeyValue(sheet);
 
 	    QuoteInformation info = new QuoteInformation();
-	    // Set thông tin chung
 	    setCommonFields(info, map);
 
 	    String reason = map.get("Reason");
