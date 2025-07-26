@@ -13,14 +13,14 @@ public class StockingAnalystSuggestion {
 	@JsonProperty("total_saled_quantity")
 	private Long totalSaledQuantity;
 	@JsonProperty("average_saled_quantity")
-	private Long averageSaledQuantity;
+	private Double averageSaledQuantity;
 	@JsonProperty("need_to_be_imported")
 	private boolean needToBeImported;
+	@JsonProperty("predict_quantity_for_next_period")
+	private Long predictQuantityForNextPeriod;
 	
-	@JsonProperty("start_date")
-	private LocalDateTime startDate;
-	@JsonProperty("end_date")
-	private LocalDateTime endDate;
+	
+	
 	
 	public StockingAnalystSuggestion() {
 		super();
@@ -50,10 +50,11 @@ public class StockingAnalystSuggestion {
 	public void setTotalSaledQuantity(Long totalSaledQuantity) {
 		this.totalSaledQuantity = totalSaledQuantity;
 	}
-	public Long getAverageSaledQuantity() {
+	
+	public Double getAverageSaledQuantity() {
 		return averageSaledQuantity;
 	}
-	public void setAverageSaledQuantity(Long averageSaledQuantity) {
+	public void setAverageSaledQuantity(Double averageSaledQuantity) {
 		this.averageSaledQuantity = averageSaledQuantity;
 	}
 	public boolean isNeedToBeImported() {
@@ -61,6 +62,12 @@ public class StockingAnalystSuggestion {
 	}
 	public void setNeedToBeImported(boolean needToBeImported) {
 		this.needToBeImported = needToBeImported;
+	}
+	public Long getPredictQuantityForNextPeriod() {
+		return predictQuantityForNextPeriod;
+	}
+	public void setPredictQuantityForNextPeriod(Long predictQuantityForNextPeriod) {
+		this.predictQuantityForNextPeriod = predictQuantityForNextPeriod;
 	}
 	
 	

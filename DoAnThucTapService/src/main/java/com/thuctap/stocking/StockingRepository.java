@@ -9,6 +9,7 @@ import com.thuctap.common.stocking.Stocking;
 import com.thuctap.common.stocking.StockingId;
 import com.thuctap.stocking.dto.StockingInventorySearchDTO;
 import com.thuctap.stocking.dto.StockingProductSearchDTO;
+import com.thuctap.stocking.dto.StockingSummaryDTO;
 
 public interface StockingRepository extends JpaRepository<Stocking,StockingId> {
 	
@@ -42,7 +43,18 @@ public interface StockingRepository extends JpaRepository<Stocking,StockingId> {
 	public List<StockingInventorySearchDTO> findStockingOfInventory(Integer id);
 	
 	
-	
+	@Query("""
+			SELECT 
+				new com.thuctap.stocking.dto.StockingSummaryDTO(
+						p.sku,
+						p.nameOverride,
+						SUM(s.quantity)
+					)
+			FROM Stocking s
+			JOIN s.productVariant p
+			GROUP BY p.sku, p.nameOverride
+			""")
+	public List<StockingSummaryDTO> getTotalStockingGroupBySku();
 	
 	
 }
