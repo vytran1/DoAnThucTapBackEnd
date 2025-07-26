@@ -15,14 +15,18 @@ import org.springframework.stereotype.Service;
 import com.thuctap.audit.AuditRepository;
 import com.thuctap.common.audit.Audit;
 import com.thuctap.common.exceptions.VariantNotFoundException;
+import com.thuctap.common.inventory.Inventory;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
 import com.thuctap.common.product_variant.ProductVariant;
+import com.thuctap.inventory.vytran.VInventoryRepository;
 import com.thuctap.product.ProductSpecification;
 import com.thuctap.product_variant.dto.CheckExistOfSkuCodeResponse;
 import com.thuctap.product_variant.dto.ProductVariantDTO;
 import com.thuctap.product_variant.dto.ProductVariantDetailDTO;
 import com.thuctap.product_variant.dto.ProductVariantForTransactionAggregator;
 import com.thuctap.product_variant.dto.ProductVariantForTransactionDTO;
+import com.thuctap.product_variant.dto.ProductVariantWithStockAggregator;
+import com.thuctap.product_variant.dto.ProductVariantWithStockDTO;
 import com.thuctap.utility.PageDTO;
 import com.thuctap.utility.UtilityGlobal;
 
@@ -34,6 +38,9 @@ public class ProductVariantService {
 	
 	@Autowired
 	private AuditRepository auditRepository;
+	
+	@Autowired
+	private VInventoryRepository vInventoryRepository;
 	
 	
 	public CheckExistOfSkuCodeResponse checkExistOfSkuCode(String sku) {
@@ -55,9 +62,6 @@ public class ProductVariantService {
 			String name,
 			Integer categoryId){
 		
-		
-		
-		
 		Pageable pageable = setupPageRequestObject(pageNum, pageSize, sortField, sortDir);
 		
 		Specification<ProductVariant> specification = ProductSpecification.hasName(name).and(ProductSpecification.hasCategory(categoryId));
@@ -68,7 +72,42 @@ public class ProductVariantService {
 		
 		return result;
 		
-	}  
+	}
+	
+	
+	public ProductVariantWithStockAggregator findAllVariantWithStock(
+			int pageNum, 
+			int pageSize, 
+			String sortField, 
+			String sortDir, 
+			String name,
+			Integer categoryId
+			) {
+		
+		String inventoryCode = UtilityGlobal.getInventoryCodeOfCurrentLoggedUser();
+		
+		Inventory inventory = vInventoryRepository.findByInventoryCode(inventoryCode);
+		
+		Pageable peagPageable = UtilityGlobal.setUpPageRequest(pageNum,pageSize, sortField, sortDir);
+		
+		Page<ProductVariantWithStockDTO> page = productVariantRepository.findForSaleOfPoint(inventory.getId(), name, categoryId, peagPageable);
+		
+		ProductVariantWithStockAggregator result = new ProductVariantWithStockAggregator();
+		
+		result.setVariants(page.getContent());
+		result.setPage(UtilityGlobal.buildPageDTO(sortField, sortDir, page));
+		
+		return result;
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	private ProductVariantForTransactionAggregator buildResult(Page<ProductVariant> pages, String sortField, String sortDir) {

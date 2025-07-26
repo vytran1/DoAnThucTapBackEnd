@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.product_variant.dto.ProductVariantDetailDTO;
 import com.thuctap.product_variant.dto.ProductVariantInventoryDTO;
+import com.thuctap.product_variant.dto.ProductVariantWithStockDTO;
 
 public interface ProductVariantRepository extends JpaRepository<ProductVariant,Integer> {
 
@@ -55,5 +56,34 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant,I
 	
 	@Query("SELECT pv FROM ProductVariant pv WHERE pv.sku = ?1")
 	public Optional<ProductVariant> findProductVariantIdBySkuCode(String sku);
+	
+	
+	@Query("""
+			SELECT new com.thuctap.product_variant.dto.ProductVariantWithStockDTO(
+					 pv.id,
+					 p.id,
+					 pv.nameOverride,
+			 		 pv.sku,
+			 		 p.image,
+                     COALESCE(SUM(s.quantity), 0),
+                     pv.price
+				)
+			FROM ProductVariant pv
+			JOIN pv.product p 
+			JOIN p.brandCategory bc
+			JOIN bc.category c
+			LEFT JOIN Stocking s ON s.productVariant.id = pv.id AND s.inventory.id = :inventoryId
+			WHERE pv.isDelete = false
+				AND (:categoryId IS NULL OR c.id = :categoryId)
+				AND (:name IS NULL OR LOWER(pv.nameOverride) LIKE LOWER(CONCAT('%', :name, '%')))
+			
+			GROUP BY pv.id, pv.sku, pv.nameOverride, pv.price		
+			""")
+	public Page<ProductVariantWithStockDTO> findForSaleOfPoint(
+			@Param("inventoryId") Integer inventoryId, 
+			@Param("name")String name, 
+			@Param("categoryId")Integer categoryId, 
+			Pageable pageable);
+	
 	
 }

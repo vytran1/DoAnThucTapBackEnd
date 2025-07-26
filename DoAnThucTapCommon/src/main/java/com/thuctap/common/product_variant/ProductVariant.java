@@ -58,6 +58,14 @@ public class ProductVariant {
 		this.id = id;
 	}
 
+    
+
+
+	public ProductVariant(String sku) {
+		super();
+		this.sku = sku;
+	}
+
 
 
 
