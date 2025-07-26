@@ -104,6 +104,18 @@ public class GlobalHandleException extends ResponseEntityExceptionHandler {
 		errorDTO.addError(errorMessage);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDTO);
 	}
+	
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ErrorDTO> handleRuntimeException(HttpServletRequest request, RuntimeException exception) {
+	    ErrorDTO error = new ErrorDTO();
+	    error.setTimestamp(new Date());
+	    error.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+	    error.addError(exception.getMessage());
+	    error.setPath(request.getServletPath());
+
+	    LOGGER.error("RuntimeException: ", exception);
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+	}
 
 	@ExceptionHandler(OrderNotFoundException.class)
 	public ResponseEntity<?> handleOrderNotFound(OrderNotFoundException e) {

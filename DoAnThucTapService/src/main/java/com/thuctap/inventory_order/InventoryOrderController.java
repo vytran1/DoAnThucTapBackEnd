@@ -95,7 +95,7 @@ public class InventoryOrderController {
 			InventoryOrderOverviewDTO result = service.getOverview(id);
 			return ResponseEntity.ok(result);
 		} catch (OrderNotFoundException e) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 		
 	}

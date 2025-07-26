@@ -71,14 +71,17 @@ public class QuoteExcelReader implements QuoteFileReader {
 	
 	public QuoteData readInvoiceData(InputStream inputStream) {
 	    try (Workbook workbook = WorkbookFactory.create(inputStream)) {
-	        Sheet detailSheet = workbook.getSheet("invoice_details");
+	        Sheet infoSheet = workbook.getSheet("information");
+	    	Sheet detailSheet = workbook.getSheet("invoice_details");
 
 	        if (detailSheet == null) {
 	            throw new IllegalArgumentException("Excel file must contain a sheet named 'invoice_details'");
 	        }
+	        
+	        QuoteInformation info = parseInvocieInformation(infoSheet);
 
 	        List<QuoteItem> invoiceItems = parseInvoiceItems(detailSheet);
-	        return new QuoteData(null, invoiceItems);
+	        return new QuoteData(info, invoiceItems);
 	    } catch (Exception e) {
 	        throw new IllegalArgumentException("Invalid invoice file: " + e.getMessage(), e);
 	    }
@@ -139,6 +142,22 @@ public class QuoteExcelReader implements QuoteFileReader {
 	    return items;
 	}
 	
+	private QuoteInformation parseInvocieInformation(Sheet sheet) {
+		Map<String, String> map = extractKeyValue(sheet);
+		
+		QuoteInformation infor = new QuoteInformation();
+		setCommonFields(infor, map);
+		
+		String invoiceCode = map.get("Invoice Code");
+		if(invoiceCode == null || invoiceCode.isBlank()) {
+			throw new IllegalArgumentException("Missing invoice code.");
+		}
+		
+		infor.setOrderCode(invoiceCode);
+		return infor;
+		
+		
+	}
 	
 	private QuoteInformation parseQuoteInformationForReject(Sheet sheet) {
 	    Map<String, String> map = extractKeyValue(sheet);
@@ -164,6 +183,9 @@ public class QuoteExcelReader implements QuoteFileReader {
 	    }
 	    return map;
 	}
+	
+	
+	
 	
 	private void setCommonFields(QuoteInformation info, Map<String, String> map) {
 	    info.setCompanyName(map.get("Company Name"));

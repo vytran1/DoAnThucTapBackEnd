@@ -41,4 +41,6 @@ public interface InventoryOrderRepository extends JpaRepository<InventoryOrder,I
 	public Page<InventoryOrderPageDTO> search(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 	
 	
+	
+	
 }
