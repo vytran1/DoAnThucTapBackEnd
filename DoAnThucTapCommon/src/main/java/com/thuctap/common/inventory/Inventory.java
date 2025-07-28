@@ -108,4 +108,17 @@ public class Inventory {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+    
+    @Transient
+	public String getFullAddress() {
+		StringBuilder builder = new StringBuilder();
+
+		builder.append(this.address != null ? this.address : "").append(", ");
+		builder.append(this.district != null ? this.district.getName() : "").append(", ");
+		builder.append(
+				this.district != null && this.district.getProvince() != null ? this.district.getProvince().getName()
+						: "");
+
+		return builder.toString().trim();
+    }
 }

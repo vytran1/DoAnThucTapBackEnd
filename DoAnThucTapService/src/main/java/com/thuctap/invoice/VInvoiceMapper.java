@@ -1,5 +1,6 @@
 package com.thuctap.invoice;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.thuctap.common.inventory.Inventory;
@@ -10,6 +11,7 @@ import com.thuctap.common.invoice.InvoiceDetailId;
 import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.invoice.dto.VInvoiceDTO;
 import com.thuctap.invoice.dto.VInvoiceDetailDTO;
+import com.thuctap.invoice.dto.VInvoiceDetailForReport;
 
 public class VInvoiceMapper {
 	
@@ -35,6 +37,15 @@ public class VInvoiceMapper {
 		
 		return detail;
 		
+	}
+	
+	public static VInvoiceDetailForReport toInvoiceDetailForReport(VInvoiceDetailDTO dto) {
+		VInvoiceDetailForReport detail = new VInvoiceDetailForReport();
+		detail.setProductName(dto.getName());
+		detail.setQuantity(dto.getQuantity());
+		detail.setUnitPrice(dto.getUnitPrice());
+		detail.setTotal(dto.getUnitPrice().multiply(new BigDecimal(dto.getQuantity())));
+		return detail;
 	}
 	
 }
