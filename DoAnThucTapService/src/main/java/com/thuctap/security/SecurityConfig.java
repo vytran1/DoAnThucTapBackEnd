@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity(debug = true)
+@EnableMethodSecurity
 public class SecurityConfig {
 	
 	
@@ -63,6 +65,7 @@ public class SecurityConfig {
 				.requestMatchers("/api/auth/**","/api/forgot_password","/api/reset_password").permitAll()
 				.requestMatchers("/employee-images/**").permitAll()
 				.requestMatchers("/product-images/**").permitAll()
+				.requestMatchers("/api/setting/**").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/orders/*/quote/supplier/*").permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/orders/*/quote/reject/supplier/*").permitAll()
 				.requestMatchers(HttpMethod.POST,"/api/orders/*/supplier/*/confirm/payed").permitAll()

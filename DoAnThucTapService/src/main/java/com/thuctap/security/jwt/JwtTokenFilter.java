@@ -106,8 +106,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 		inventoryRole.setName(roleName);
 		
 		String inventoryCode = array[2];
+		Integer inventoryId = Integer.valueOf(array[3]);
 		Inventory inventory = new Inventory();
 		inventory.setInventoryCode(inventoryCode);
+		inventory.setId(inventoryId);
 		
 		
 		inventoryEmployee.setInventoryRole(inventoryRole);

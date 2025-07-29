@@ -40,9 +40,11 @@ public class JwtUtility {
 		
 		long expirationTime = System.currentTimeMillis() + accessTokenExpiration * 60000;
 		
-		String subject = String.format("%s,%s,%s",employee.getId(),
+		String subject = String.format("%s,%s,%s,%s",employee.getId(),
 														employee.getEmail(),
-														employee.getInventory().getInventoryCode());
+														employee.getInventory().getInventoryCode(),
+														employee.getInventory().getId()	
+				);
 		
 		
 		

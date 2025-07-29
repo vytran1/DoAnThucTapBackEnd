@@ -31,6 +31,13 @@ public class UtilityGlobal {
 		return inventoryCode;
 	}
 	
+	public static Integer getInventoryIdOfCurrentLoggedUser() {
+		CustomerUserDetails customerUserDetails = (CustomerUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		InventoryEmployee employee = customerUserDetails.getInventoryEmployee();
+		Integer inventortId = employee.getInventory().getId();
+		return inventortId;
+	}
+	
 	
 	public static Pageable setUpPageRequest(Integer pageNum, Integer pageSize, String sortField, String sortDir) {
 		Sort sort = Sort.by(sortField);
