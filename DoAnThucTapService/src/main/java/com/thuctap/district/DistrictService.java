@@ -18,9 +18,8 @@ public class DistrictService {
 		
 		dto.setId(district.getId());
 		dto.setName(district.getName());
-		dto.setProvinceId(district.getProvince().getId());
+		dto.setProvinceId(district.getProvince().getId());	
 		dto.setProvinceName(district.getProvince().getName());
-		
 		return dto;
 	}
 	
@@ -32,14 +31,14 @@ public class DistrictService {
 				.collect(Collectors.toList());
 	}
 	
-//	public DistrictDTO getDistrictById(Integer id) {
-//		District district = districtRepository.findById(id).orElse(null);
-//		
-//		if(district != null) {
-//			return convertDistrictDTO(district);
-//		}
-//		
-//		return null;
-//	}
+	public DistrictDTO getDistrictById(Integer id) {
+		District district = districtRepository.findById(id).orElse(null);
+		
+		if(district != null) {
+			return convertDistrictDTO(district);
+		}
+		
+		return null;
+	}
 	
 }
