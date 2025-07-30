@@ -27,4 +27,10 @@ public class VInventoryController {
 	}
 	
 	
+	@GetMapping("/drop-down")
+	public ResponseEntity<List<InventoryListSearchDTO>> getListInventoriesForDropDownList(){
+		return ResponseEntity.ok(inventoryService.getInventories());
+	}
+	
+	
 }

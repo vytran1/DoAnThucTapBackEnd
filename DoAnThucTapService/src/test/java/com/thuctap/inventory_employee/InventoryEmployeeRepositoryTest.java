@@ -27,17 +27,17 @@ public class InventoryEmployeeRepositoryTest {
 	
 	
 	
-//	@Test
+	@Test
 	public void testSaveEmployeesToDatabase_shouldSuccess() {
 		
 		InventoryEmployee inventoryEmployee = new InventoryEmployee();
-		inventoryEmployee.setEmail("vy.tn171003@gmail.com");
+		inventoryEmployee.setEmail("n21dcvt128@gmail.com");
 		inventoryEmployee.setFirstName("Trần Nguyễn");
 		inventoryEmployee.setLastName("Vỹ");
 		inventoryEmployee.setPhoneNumber("0979847481");
-		inventoryEmployee.setInventoryRole(new InventoryRole(1));
-		inventoryEmployee.setInventory(new Inventory(1));
-		inventoryEmployee.setPassword("$2a$12$poT6EdckHKPYLj8UbQfZQOM6DomBxkaQqY7rdGbkUWHi.7Ily2m4u");
+		inventoryEmployee.setInventoryRole(new InventoryRole(2));
+		inventoryEmployee.setInventory(new Inventory(2));
+		inventoryEmployee.setPassword("$10$UGp1w7ULeJPRTtsCalA0dum2iMxVsQHBc/ug6VrQwjhcxBZA.Oqre");
 		
 		InventoryEmployee savedInventoryEmployee = repository.save(inventoryEmployee);
 		Assertions.assertThat(savedInventoryEmployee).isNotNull();
@@ -46,7 +46,7 @@ public class InventoryEmployeeRepositoryTest {
 	@Test
 	public void testGetEmployeeById_shouldSuccess() {
 		
-		Integer employeeId = 1;
+		Integer employeeId = 2;
 		
 		Optional<InventoryEmployee> employeeOTP = repository.findById(employeeId);
 		

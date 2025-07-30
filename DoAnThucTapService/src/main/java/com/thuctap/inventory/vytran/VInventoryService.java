@@ -18,4 +18,9 @@ public class VInventoryService {
 		return repository.searchByName(name);
 	}
 	
+	
+	public List<InventoryListSearchDTO> getInventories(){
+		return repository.getListInventoryForDropDownList();
+	}
+	
 }

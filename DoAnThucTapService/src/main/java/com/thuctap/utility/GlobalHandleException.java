@@ -20,6 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.thuctap.common.exceptions.InventoryAlreadyExistException;
 import com.thuctap.common.exceptions.OrderNotFoundException;
 import com.thuctap.common.exceptions.StatusNotFoundException;
 import com.thuctap.common.exceptions.SupplierNotFoundException;
@@ -119,8 +120,16 @@ public class GlobalHandleException extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(OrderNotFoundException.class)
 	public ResponseEntity<?> handleOrderNotFound(OrderNotFoundException e) {
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 	}
+	
+	@ExceptionHandler(InventoryAlreadyExistException.class)
+	public ResponseEntity<?> handleInventoryCodeAlreadyExist(InventoryAlreadyExistException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	}
+	
+	
+	
 
 	@ExceptionHandler(SupplierNotFoundException.class)
 	public ResponseEntity<?> handleSupplierNotFound(SupplierNotFoundException e) {

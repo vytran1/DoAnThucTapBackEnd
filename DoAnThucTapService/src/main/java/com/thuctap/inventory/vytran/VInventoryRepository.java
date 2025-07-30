@@ -28,4 +28,14 @@ public interface VInventoryRepository extends JpaRepository<Inventory,Integer>{
 			""")
 	public Inventory findByInventoryCode(String inventoryCode);
 	
+	
+	@Query("""
+			SELECT 
+				new com.thuctap.inventory.dto.InventoryListSearchDTO(
+					iv.id, iv.inventoryCode
+				)
+			FROM Inventory iv
+			""")
+	public List<InventoryListSearchDTO> getListInventoryForDropDownList();
+	
 }
