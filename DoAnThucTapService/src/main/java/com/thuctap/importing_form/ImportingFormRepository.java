@@ -1,15 +1,18 @@
 package com.thuctap.importing_form;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.thuctap.common.importing_form.ImportingForm;
 import com.thuctap.importing_form.dto.ImportingFormOverviewDTO;
 import com.thuctap.importing_form.dto.ImportingFormPageDTO;
+import com.thuctap.reports.dto.ReportItemDTO;
 
 public interface ImportingFormRepository extends JpaRepository<ImportingForm,Integer> {
 	
@@ -54,6 +57,25 @@ public interface ImportingFormRepository extends JpaRepository<ImportingForm,Int
 			WHERE if.id = ?1 
 			""")
 	public Integer findOrderIdByImportingFormId(Integer formId);
+	
+	@Query("""
+		    SELECT new com.thuctap.reports.dto.ReportItemDTO(
+		        DATE(f.createdAt),
+		        SUM(d.quantity * d.costPrice)
+		    )
+		    FROM ImportingForm f
+		    JOIN f.inventory inv
+		    JOIN ImportingFormDetail d ON d.importingForm = f
+		    WHERE (:inventoryId IS NULL OR f.inventory.id = :inventoryId)
+		      AND f.createdAt BETWEEN :startDate AND :endDate
+		    GROUP BY DATE(f.createdAt)
+		    ORDER BY DATE(f.createdAt)
+		""")
+		List<ReportItemDTO> getImportingReportByDate(
+		    @Param("startDate") LocalDateTime startDate,
+		    @Param("endDate") LocalDateTime endDate,
+		    @Param("inventoryId") Integer inventoryId
+		);
 	
 	
 }

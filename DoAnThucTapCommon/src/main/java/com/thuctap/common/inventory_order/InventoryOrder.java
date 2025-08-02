@@ -152,11 +152,11 @@ public class InventoryOrder {
 	}
     
     
-	@PrePersist
-	public void prePersist() {
-	    this.createdAt = LocalDateTime.now();
-	    this.updatedAt = LocalDateTime.now();
-	}
+//	@PrePersist
+//	public void prePersist() {
+//	    this.createdAt = LocalDateTime.now();
+//	    this.updatedAt = LocalDateTime.now();
+//	}
 
 	public String getQuoteFile() {
 		return quoteFile;

@@ -44,7 +44,7 @@ public class InvoiceRepositoryTest {
     private EntityManager entityManager;
     
     
-    @Test
+    //@Test
     void insert10Invoices() {
         int employeeId = 2;
         List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
@@ -90,6 +90,96 @@ public class InvoiceRepositoryTest {
 
         System.out.println("✅ Inserted 10 test invoices with details.");
     }
+    
+    
+//@Test
+    void insertInvoicesInLast6Months() {
+    	 int employeeId = 2;
+    	    List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
+
+    	    InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
+    	            .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+    	    Random random = new Random();
+
+    	    for (int i = 0; i < 30; i++) {
+    	        
+    	        int randomDays = random.nextInt(180); // 0–179
+    	        LocalDateTime createdAt = LocalDateTime.now().minusDays(randomDays);
+
+    	        Invoice invoice = createInvoice(employee, createdAt);
+    	        Invoice savedInvoice = invoiceRepository.save(invoice);
+
+    	        generateInvoiceDetails(savedInvoice, skus, random);
+
+    	        entityManager.flush();
+    	        entityManager.clear();
+    	    }
+
+    	    System.out.println("✅ Inserted 30 test invoices randomly in last 6 months.");
+    }
+    
+    @Test
+    void insertInvoicesForSpecificMonth() {
+        int employeeId = 2;
+        int targetMonth = 1; 
+        int targetYear = 2025;
+
+        List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
+
+        InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        Random random = new Random();
+
+        for (int day = 1; day <= 30; day++) {
+            LocalDateTime createdAt = LocalDateTime.of(targetYear, targetMonth, day, 10, 0);
+
+            Invoice invoice = createInvoice(employee, createdAt);
+            Invoice savedInvoice = invoiceRepository.save(invoice);
+
+            generateInvoiceDetails(savedInvoice, skus, random);
+
+            entityManager.flush();
+            entityManager.clear();
+        }
+
+        System.out.printf("✅ Inserted 30 invoices for month %02d/%d\n", targetMonth, targetYear);
+    }
+    
+    private Invoice createInvoice(InventoryEmployee employee, LocalDateTime createdAt) {
+        Random random = new Random();
+
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceCode("TEST_INV_" + System.currentTimeMillis() + random.nextInt(999));
+        invoice.setTax(BigDecimal.valueOf(random.nextInt(5)));
+        invoice.setEmployee(employee);
+        invoice.setInventory(employee.getInventory());
+        invoice.setCreatedAt(createdAt);
+
+        return invoice;
+    }
+    
+    private void generateInvoiceDetails(Invoice invoice, List<String> skus, Random random) {
+        int productCount = 1 + random.nextInt(2); 
+
+        for (int j = 0; j < productCount; j++) {
+            String sku = skus.get(random.nextInt(skus.size()));
+            ProductVariant variant = productVariantRepository.findBySkuCode(sku)
+                    .orElseThrow(() -> new RuntimeException("SKU not found: " + sku));
+
+            InvoiceDetail detail = new InvoiceDetail();
+            detail.setId(new InvoiceDetailId(invoice.getId(), sku));
+            detail.setInvoice(invoice);
+            detail.setProductVariant(variant);
+            detail.setUnitPrice(variant.getPrice());
+            detail.setQuantity(1 + random.nextInt(3));
+
+            invoiceDetailRepository.save(detail);
+        }
+    }
+    
+    
 }
 	
 
