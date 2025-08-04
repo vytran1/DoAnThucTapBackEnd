@@ -44,9 +44,9 @@ public class InvoiceRepositoryTest {
     private EntityManager entityManager;
     
     
-    //@Test
+    @Test
     void insert10Invoices() {
-        int employeeId = 2;
+        int employeeId = 1;
         List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
 
         InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
@@ -119,10 +119,10 @@ public class InvoiceRepositoryTest {
     	    System.out.println("✅ Inserted 30 test invoices randomly in last 6 months.");
     }
     
-    @Test
+    //@Test
     void insertInvoicesForSpecificMonth() {
-        int employeeId = 2;
-        int targetMonth = 1; 
+        int employeeId = 1;
+        int targetMonth = 8; 
         int targetYear = 2025;
 
         List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");

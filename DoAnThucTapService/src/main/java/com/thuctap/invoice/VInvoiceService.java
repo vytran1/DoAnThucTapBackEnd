@@ -2,6 +2,7 @@ package com.thuctap.invoice;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +97,8 @@ public class VInvoiceService {
 	
 	private void setUpParameters(Map<String,Object> parametersInReport,VInvoiceDTO dto,InventoryEmployee employee,Invoice savedInvoice,Inventory inventory) {
 		String invoiceCode = savedInvoice.getInvoiceCode();
-		String createdDate = savedInvoice.getCreatedAt().toString();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+		String createdDate = savedInvoice.getCreatedAt().format(formatter);
 		BigDecimal tax = dto.getTax();
 		
 		
