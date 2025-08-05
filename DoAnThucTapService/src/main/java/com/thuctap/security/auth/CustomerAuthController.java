@@ -8,24 +8,24 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.thuctap.common.customer.Customer;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
+import com.thuctap.security.CustomerAccountUserDetail;
 import com.thuctap.security.CustomerUserDetails;
-import com.thuctap.security.CustomerUserDetailsService;
 
 @RestController
-@RequestMapping("/api/auth")
-public class AuthController {
-	
+@RequestMapping("/sale/customer/auth")
+public class CustomerAuthController {
 	
 	@Autowired
-	@Qualifier("employeeAuthenticationManager")
+	@Qualifier("customerAuthenticationManager")
 	private AuthenticationManager authenticationManager;
 	
 	@Autowired
@@ -40,9 +40,9 @@ public class AuthController {
 		try {
 			Authentication authentication =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username,password));
 			
-			CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getPrincipal();
+			CustomerAccountUserDetail userDetails = (CustomerAccountUserDetail) authentication.getPrincipal();
 			
-			InventoryEmployee employee = userDetails.getInventoryEmployee();
+			Customer employee = userDetails.getCustomer();
 			
 			AuthResponse response = tokenService.generateToken(employee);
 			

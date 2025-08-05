@@ -24,6 +24,7 @@ public class InventoryOrderMapper {
 		inventoryOrder.setOrderCode("ORDER-" + LocalDateTime.now().toString());
 		inventoryOrder.setSupplier(new Supplier(requestDTO.getSupplier()));
 		inventoryOrder.setEmployee(new InventoryEmployee(UtilityGlobal.getIdOfCurrentLoggedUser()));
+		inventoryOrder.setCreatedAt(LocalDateTime.now());
 		return inventoryOrder;
 	}
 	

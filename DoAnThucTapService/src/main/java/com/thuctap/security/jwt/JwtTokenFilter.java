@@ -15,9 +15,11 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import com.thuctap.common.customer.Customer;
 import com.thuctap.common.inventory.Inventory;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
 import com.thuctap.common.inventory_roles.InventoryRole;
+import com.thuctap.security.CustomerAccountUserDetail;
 import com.thuctap.security.CustomerUserDetails;
 
 import io.jsonwebtoken.Claims;
@@ -92,38 +94,65 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 		
 		String subject = (String) claims.get(Claims.SUBJECT);
 		String[] array = subject.split(",");
-		
-		Integer employeeId = Integer.valueOf(array[0]);
-		String email = array[1];
+		String userType = claims.get("type", String.class);
 		
 		
-		InventoryEmployee inventoryEmployee = new InventoryEmployee();
-		inventoryEmployee.setId(employeeId);
-		inventoryEmployee.setEmail(email);
+		if ("CUSTOMER".equalsIgnoreCase(userType)) {
+	        return extractCustomerUserDetails(claims);
+	    } else if ("EMPLOYEE".equalsIgnoreCase(userType)) {
+	        return extractEmployeeUserDetails(claims);
+	    }
 		
-		String roleName = (String) claims.get("role");
-		InventoryRole inventoryRole = new InventoryRole();
-		inventoryRole.setName(roleName);
-		
-		String inventoryCode = array[2];
-		Integer inventoryId = Integer.valueOf(array[3]);
-		Inventory inventory = new Inventory();
-		inventory.setInventoryCode(inventoryCode);
-		inventory.setId(inventoryId);
+		return null;
 		
 		
-		inventoryEmployee.setInventoryRole(inventoryRole);
-		inventoryEmployee.setInventory(inventory);
-		
-		LOGGER.info("Information parsed From JWT" + 
-		employeeId + " " + " " + 
-				email + " " + 
-		roleName + " " + 
-				inventoryCode);
-		
-		
-		return new CustomerUserDetails(inventoryEmployee);
 	}
+	
+	private UserDetails extractCustomerUserDetails(Claims claims) {
+	    String subject = claims.getSubject(); // format: id,email,fullName
+	    String[] parts = subject.split(",");
+
+
+	    Integer customerId = Integer.valueOf(parts[0]);
+	    String email = parts[1];
+	    String fullName = parts[2];
+
+	    Customer customer = new Customer();
+	    customer.setId(customerId);
+	    customer.setEmail(email);
+	    customer.setFullName(fullName);
+
+	    return new CustomerAccountUserDetail(customer);
+	}
+	
+	private UserDetails extractEmployeeUserDetails(Claims claims) {
+	    String subject = claims.getSubject(); // format: id,email,inventoryCode,inventoryId
+	    String[] parts = subject.split(",");
+
+	    Integer employeeId = Integer.valueOf(parts[0]);
+	    String email = parts[1];
+	    String inventoryCode = parts[2];
+	    Integer inventoryId = Integer.valueOf(parts[3]);
+
+	    String roleName = claims.get("role", String.class);
+
+	    InventoryRole inventoryRole = new InventoryRole();
+	    inventoryRole.setName(roleName);
+
+	    Inventory inventory = new Inventory();
+	    inventory.setInventoryCode(inventoryCode);
+	    inventory.setId(inventoryId);
+
+	    InventoryEmployee employee = new InventoryEmployee();
+	    employee.setId(employeeId);
+	    employee.setEmail(email);
+	    employee.setInventory(inventory);
+	    employee.setInventoryRole(inventoryRole);
+
+	    return new CustomerUserDetails(employee);
+	}
+	
+	
 
 	private boolean hasAuthorizationBearerToken(HttpServletRequest request) {
 		

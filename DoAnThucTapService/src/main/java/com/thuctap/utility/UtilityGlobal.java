@@ -10,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.thuctap.common.customer.Customer;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
+import com.thuctap.security.CustomerAccountUserDetail;
 import com.thuctap.security.CustomerUserDetails;
 
 public class UtilityGlobal {
@@ -23,6 +25,14 @@ public class UtilityGlobal {
 		Integer id = employee.getId();
 		return id;
 	}
+	
+	public static Integer getIfOfCurrentLoggedCustomer() {
+		CustomerAccountUserDetail customerAccountUserDetail = (CustomerAccountUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Customer customer = customerAccountUserDetail.getCustomer();
+		Integer id = customer.getId();
+		return id;
+	}
+	
 	
 	public static String getInventoryCodeOfCurrentLoggedUser() {
 		CustomerUserDetails customerUserDetails = (CustomerUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

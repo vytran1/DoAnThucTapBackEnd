@@ -44,7 +44,7 @@ public class InvoiceRepositoryTest {
     private EntityManager entityManager;
     
     
-    @Test
+    //@Test
     void insert10Invoices() {
         int employeeId = 1;
         List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
@@ -92,7 +92,7 @@ public class InvoiceRepositoryTest {
     }
     
     
-//@Test
+    //@Test
     void insertInvoicesInLast6Months() {
     	 int employeeId = 2;
     	    List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
@@ -119,7 +119,7 @@ public class InvoiceRepositoryTest {
     	    System.out.println("✅ Inserted 30 test invoices randomly in last 6 months.");
     }
     
-    //@Test
+    @Test
     void insertInvoicesForSpecificMonth() {
         int employeeId = 1;
         int targetMonth = 8; 

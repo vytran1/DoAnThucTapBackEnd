@@ -7,6 +7,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.thuctap.common.customer.Customer;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
 
 import io.jsonwebtoken.Claims;
@@ -43,7 +44,8 @@ public class JwtUtility {
 		String subject = String.format("%s,%s,%s,%s",employee.getId(),
 														employee.getEmail(),
 														employee.getInventory().getInventoryCode(),
-														employee.getInventory().getId()	
+														employee.getInventory().getId()
+												
 				);
 		
 		
@@ -54,11 +56,33 @@ public class JwtUtility {
 				.issuedAt(new Date())
 				.expiration(new Date(expirationTime))
 				.claim("role",employee.getInventoryRole().getName())
+				.claim("type", "EMPLOYEE")
 				.signWith(Keys.hmacShaKeyFor(secretKey.getBytes()),Jwts.SIG.HS512)
-				.compact();
-				
-				
+				.compact();			
 	}
+	
+	
+	public String generateAccessTokenForCustomer(Customer customer) {
+	    if (customer == null || customer.getEmail() == null) {
+	        throw new IllegalArgumentException("Customer object is null");
+	    }
+
+	    long expirationTime = System.currentTimeMillis() + accessTokenExpiration * 60000;
+
+	    String subject = String.format("%s,%s,%s", customer.getId(), customer.getEmail(),customer.getFullName());
+
+	    return Jwts.builder()
+	            .subject(subject)
+	            .issuer(issueName)
+	            .issuedAt(new Date())
+	            .expiration(new Date(expirationTime))
+	            .claim("type", "CUSTOMER")
+	            .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), Jwts.SIG.HS512)
+	            .compact();
+	}
+	
+	
+	
 	
 	public Claims validateAccessToken(String token) throws JwtValidationException{
 		try {

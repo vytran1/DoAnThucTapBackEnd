@@ -6,6 +6,14 @@ public class JwtValidationException extends Exception {
 		super(message, cause);
 		// TODO Auto-generated constructor stub
 	}
+
+	public JwtValidationException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+	
+	
+	
 	
 	
 	
