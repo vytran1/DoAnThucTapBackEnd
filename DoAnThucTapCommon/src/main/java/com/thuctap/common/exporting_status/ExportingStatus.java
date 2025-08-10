@@ -19,6 +19,15 @@ public class ExportingStatus {
 			super();
 			// TODO Auto-generated constructor stub
 		}
+		
+		
+
+		public ExportingStatus(Integer id) {
+			super();
+			this.id = id;
+		}
+
+
 
 		public Integer getId() {
 			return id;

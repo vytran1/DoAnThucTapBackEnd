@@ -1,6 +1,7 @@
 package com.thuctap.utility;
 
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -17,6 +18,16 @@ import com.thuctap.security.CustomerUserDetails;
 
 public class UtilityGlobal {
 	
+	
+	private static  DateTimeFormatter VIETNAM_DATETIME_FORMATTER;
+	
+	
+	public static DateTimeFormatter getVietnamDateTimeFormatter() {
+	     if (VIETNAM_DATETIME_FORMATTER == null) {
+	        	VIETNAM_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+	     }
+	     return VIETNAM_DATETIME_FORMATTER;
+	}
 	
 	public static Integer getIdOfCurrentLoggedUser() 
 	{

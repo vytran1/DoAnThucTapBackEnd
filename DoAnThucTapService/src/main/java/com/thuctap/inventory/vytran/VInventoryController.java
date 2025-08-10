@@ -32,5 +32,11 @@ public class VInventoryController {
 		return ResponseEntity.ok(inventoryService.getInventories());
 	}
 	
+	@GetMapping("/drop-down/ignore")
+	public ResponseEntity<List<InventoryListSearchDTO>> getInventoriesIgnoreThatOfCurrentLoggedUser(){
+		return ResponseEntity.ok(inventoryService.getInventoriesIgnoreThatOfCurrentLoggedUser());
+	}
+	
+	
 	
 }

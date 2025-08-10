@@ -1,6 +1,5 @@
 package com.thuctap.common.transporter;
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 
 
@@ -39,13 +38,23 @@ public class Transporter {
 	    @Column(name = "is_delete")
 	    private Boolean isDelete = false;
 	    
-	    
+	    @Column(name = "secret_key")
+	    private String secretKey;
 	    
 
 		public Transporter() {
 			super();
 			// TODO Auto-generated constructor stub
 		}
+		
+		
+
+		public Transporter(Integer id) {
+			super();
+			this.id = id;
+		}
+
+
 
 		public Integer getId() {
 			return id;
@@ -125,6 +134,18 @@ public class Transporter {
 
 		public void setIsDelete(Boolean isDelete) {
 			this.isDelete = isDelete;
+		}
+
+
+
+		public String getSecretKey() {
+			return secretKey;
+		}
+
+
+
+		public void setSecretKey(String secretKey) {
+			this.secretKey = secretKey;
 		}
 	    
 	    

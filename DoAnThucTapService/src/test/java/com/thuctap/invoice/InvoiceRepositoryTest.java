@@ -47,7 +47,7 @@ public class InvoiceRepositoryTest {
     //@Test
     void insert10Invoices() {
         int employeeId = 1;
-        List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
+        List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4","LG6_PRO_2025_1");
 
         InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
@@ -92,10 +92,10 @@ public class InvoiceRepositoryTest {
     }
     
     
-    //@Test
+//    @Test
     void insertInvoicesInLast6Months() {
     	 int employeeId = 2;
-    	    List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
+    	    List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4","LG6_PRO_2025_1");
 
     	    InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
     	            .orElseThrow(() -> new RuntimeException("Employee not found"));
@@ -125,7 +125,7 @@ public class InvoiceRepositoryTest {
         int targetMonth = 8; 
         int targetYear = 2025;
 
-        List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4");
+        List<String> skus = List.of("LG4_2020_1", "LG4_2020_2", "LG4_2020_3", "LG4_2020_4","LG6_PRO_2025_1");
 
         InventoryEmployee employee = inventoryEmployeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found"));

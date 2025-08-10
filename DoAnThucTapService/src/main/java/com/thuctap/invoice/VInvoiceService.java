@@ -130,7 +130,9 @@ public class VInvoiceService {
 		BigDecimal result = new BigDecimal(0);
 		
 		for(VInvoiceDetailDTO detail : details) {
-			result = result.add(detail.getUnitPrice());
+			BigDecimal lineTotal = detail.getUnitPrice()
+                    .multiply(BigDecimal.valueOf(detail.getQuantity()));
+			result = result.add(lineTotal);
 		}
 		
 		return result;

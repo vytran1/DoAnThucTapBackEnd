@@ -74,6 +74,7 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/orders/*/supplier/*/confirm/payed").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/orders/*/supplier/*/status/shipping").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/orders/*/supplier/*/status/arriving").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/exporting_form/transporter/**").permitAll()
 						.anyRequest().authenticated())
 				.csrf(csrf -> csrf.disable())
 				.exceptionHandling(exh -> exh.authenticationEntryPoint((request, response, exception) -> {

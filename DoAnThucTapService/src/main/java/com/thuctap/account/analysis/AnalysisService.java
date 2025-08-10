@@ -89,7 +89,8 @@ public class AnalysisService {
 					String productName = stocks.getName();
 					Long currentQuantity = stocks.getTotalQuantity();
 					ProductSaleSummaryDTO sale = saleMap.get(sku);
-					Long totalSaledQuantity = sale.getTotalQuantity();
+					Long totalSaledQuantity = (sale != null) ? sale.getTotalQuantity() : 0L;
+
 
 					StockingAnalystSuggestion suggestion = new StockingAnalystSuggestion();
 					suggestion.setName(productName);

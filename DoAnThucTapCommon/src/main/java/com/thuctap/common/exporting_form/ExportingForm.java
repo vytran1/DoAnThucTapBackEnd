@@ -2,6 +2,9 @@ package com.thuctap.common.exporting_form;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.thuctap.common.inventory.Inventory;
 import com.thuctap.common.inventory_employees.InventoryEmployee;
 import com.thuctap.common.transporter.Transporter;
@@ -49,6 +52,10 @@ public class ExportingForm {
 
 	    @Column(name = "completed_at", insertable = false)
 	    private LocalDateTime completedAt;
+	    
+	    @Column(name = "quote_price_data", columnDefinition = "JSON")
+	    @JdbcTypeCode(SqlTypes.JSON)
+	    private QuotePriceData quotePriceData;
 	    
 	    
 	    
@@ -144,6 +151,14 @@ public class ExportingForm {
 
 		public void setCompletedAt(LocalDateTime completedAt) {
 			this.completedAt = completedAt;
+		}
+
+		public QuotePriceData getQuotePriceData() {
+			return quotePriceData;
+		}
+
+		public void setQuotePriceData(QuotePriceData quotePriceData) {
+			this.quotePriceData = quotePriceData;
 		}
 	    
 	    

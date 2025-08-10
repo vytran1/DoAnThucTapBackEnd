@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thuctap.inventory.dto.InventoryListSearchDTO;
+import com.thuctap.utility.UtilityGlobal;
 
 @Service
 public class VInventoryService {
@@ -22,5 +23,11 @@ public class VInventoryService {
 	public List<InventoryListSearchDTO> getInventories(){
 		return repository.getListInventoryForDropDownList();
 	}
+	
+	public List<InventoryListSearchDTO> getInventoriesIgnoreThatOfCurrentLoggedUser(){
+		Integer id = UtilityGlobal.getInventoryIdOfCurrentLoggedUser();
+		return repository.getListInventoryForDropDownListIgnoreThatOfCurrentLoggedUser(id);
+	}
+	
 	
 }
