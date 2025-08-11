@@ -33,4 +33,27 @@ public interface ExportingFormStatusRepository extends JpaRepository<ExportingFo
 		""")
 	List<String> getStatusNamesByFormId(Integer formId);
 	
+	
+	@Query("""
+		    SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+		    FROM ExportingFormStatus s
+		    JOIN s.exportingForm f
+		    JOIN s.status st
+		    WHERE f.id = :formId
+		      AND st.name IN ('REVIEW_DECIDED_TRANSPORT', 'REVIEW_REJECT')
+		""")
+	boolean hasReviewDecisionOrReject(Integer formId);
+	
+	@Query("""
+		    SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+		    FROM ExportingFormStatus s
+		    JOIN s.exportingForm f
+		    JOIN s.status st
+		    WHERE f.id = :formId
+		      AND st.name = 'REVIEW_DECIDED_TRANSPORT'
+		""")
+	boolean hasReviewDecidedTransport(Integer formId);
+	
+	
+	
 }

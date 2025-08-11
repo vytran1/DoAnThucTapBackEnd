@@ -17,6 +17,11 @@ public class QuotePriceInformationAggregator {
 	private BigDecimal totalValueWithoutDiscount;
 	@JsonProperty("total_value_with_discount")
 	private BigDecimal totalValueWithDiscount;
+	private boolean reject;
+	@JsonProperty("has_quote")
+	private boolean hasQuote;
+	
+	
 	
 	public QuotePriceInformationAggregator() {
 		
@@ -61,6 +66,29 @@ public class QuotePriceInformationAggregator {
 	public void setTotalValueWithDiscount(BigDecimal totalValueWithDiscount) {
 		this.totalValueWithDiscount = totalValueWithDiscount;
 	}
+
+
+	public boolean isReject() {
+		return reject;
+	}
+
+
+	public void setReject(boolean reject) {
+		this.reject = reject;
+	}
+
+
+	public boolean isHasQuote() {
+		return hasQuote;
+	}
+
+
+	public void setHasQuote(boolean hasQuote) {
+		this.hasQuote = hasQuote;
+	}
+
+
+	
 	
 	
 	

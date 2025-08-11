@@ -15,12 +15,19 @@ public class StockingId implements Serializable {
 	@Column(name = "sku", length = 125)
     private String sku;
     
+	
+	
+	public StockingId() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public StockingId(Integer inventoryId, String sku) {
 		super();
 		this.inventoryId = inventoryId;
 		this.sku = sku;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(inventoryId, sku);

@@ -26,6 +26,7 @@ public class QuotePriceDataDTO {
 	@JsonProperty("price_per_item")
 	private BigDecimal pricePerItem;
 	private BigDecimal discount;
+	private String reason;
 
 	public QuotePriceDataDTO(QuotePriceData source) {
 		this.companyName = source.getCompanyName();
@@ -44,6 +45,7 @@ public class QuotePriceDataDTO {
 		this.pricePerKilometer = source.getPricePerKilometer();
 		this.pricePerItem = source.getPricePerItem();
 		this.discount = source.getDiscount();
+		this.reason = source.getReason();
 	}
 
 	public String getCompanyName() {
@@ -141,5 +143,15 @@ public class QuotePriceDataDTO {
 	public void setDiscount(BigDecimal discount) {
 		this.discount = discount;
 	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+	
+	
 
 }

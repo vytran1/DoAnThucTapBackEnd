@@ -28,7 +28,6 @@ public class Stocking {
     private Inventory inventory;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("sku")
     @JoinColumn(name = "sku", referencedColumnName = "sku", insertable = false, updatable = false)
     private ProductVariant productVariant;
 

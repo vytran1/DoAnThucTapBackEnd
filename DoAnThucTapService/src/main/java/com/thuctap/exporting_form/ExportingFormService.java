@@ -25,6 +25,8 @@ import com.thuctap.common.exporting_form.ExportingFormStatusId;
 import com.thuctap.common.exporting_form.QuotePriceData;
 import com.thuctap.common.exporting_status.ExportingStatus;
 import com.thuctap.common.inventory.Inventory;
+import com.thuctap.common.inventory_employees.InventoryEmployee;
+import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.common.stocking.Stocking;
 import com.thuctap.common.stocking.StockingId;
 import com.thuctap.common.transporter.Transporter;
@@ -35,8 +37,11 @@ import com.thuctap.exporting_form.dto.ExportingFormOverviewDTO;
 import com.thuctap.exporting_form.dto.ExportingFormStatusDTO;
 import com.thuctap.exporting_form.dto.QuotePriceDataDTO;
 import com.thuctap.exporting_form.dto.QuotePriceInformationAggregator;
+import com.thuctap.inventory_employee.InventoryEmployeeRepository;
+import com.thuctap.product_variant.ProductVariantRepository;
 import com.thuctap.stocking.StockingRepository;
 import com.thuctap.transporter.TransporterRepository;
+import com.thuctap.utility.UtilityGlobal;
 
 @Service
 public class ExportingFormService {
@@ -61,7 +66,13 @@ public class ExportingFormService {
 	private TransporterRepository transporterRepository;
 	
 	@Autowired
+	private ProductVariantRepository productVariantRepository;
+	
+	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private InventoryEmployeeRepository inventoryEmployeeRepository;
 	
 	
 	
@@ -137,27 +148,447 @@ public class ExportingFormService {
 		return result;
 	}
 	
-	
-	public QuotePriceInformationAggregator getQuotePriceInformation(Integer formId) throws ExportingFormNotFoundException {
+	@Transactional()
+	public ExportingFormStatusDTO updateReviewAndRejectedStatusByTransporter( Integer formId,
+			 String transporterCode,
+			 String secretKey,
+			 QuotePriceData quotePriceData) throws ExportingFormNotFoundException, TransporterNotFoundException {
 		
 		ExportingForm exportingForm = getExportingForm(formId);
 		
-		QuotePriceData quotePriceData = exportingForm.getQuotePriceData();
+		Transporter transporter = getTransporter(transporterCode);
 		
+		authenticationForTransporter(transporter,secretKey);
 		
-		Long totalQuantity = exportingFormDetailRepository.getTotalQuantityByFormId(formId);
+		validateExportingFormAndTransporter(exportingForm,transporterCode);
 		
-		QuotePriceInformationAggregator result = new QuotePriceInformationAggregator();
-		result.setQuotePriceData(new QuotePriceDataDTO(quotePriceData));
-		result.setTotalQuantity(totalQuantity);
-		result.setTotalValueWithoutDiscount(calculateShippingFeeQuotedByTransporterWithoutDiscount(formId, quotePriceData));
-		result.setTotalValueWithDiscount(calculateShippingFeeQuotedByTransporterWithDiscount(formId, quotePriceData));
+		validateBeforeUpdateReviewAndRejectedStatus(formId);
+		
+		exportingForm.setQuotePriceData(quotePriceData);
+		exportingFormRepository.save(exportingForm);
+		
+		updateStockBackToInventory(exportingForm);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,3,false,false);
+		
+		return result;
+	}
+	
+	
+	public ExportingFormStatusDTO updateAcceptPriceStatusByInventory(Integer formId) throws ExportingFormNotFoundException {
+		
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		validateOperator(exportingForm,true);
+		
+		validateBeforeUpdateStatusAcceptPrice(formId);
+
+		exportingForm.setShippingFee(exportingForm.getQuoteShippingFee());
+		
+		exportingFormRepository.save(exportingForm);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,19,true,true);
+		
+		return result;
+		
+	}
+	
+	@Transactional()
+	public ExportingFormStatusDTO updateRejectPriceStatusByInventory(Integer formId) throws ExportingFormNotFoundException {
+		
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		validateOperator(exportingForm,true);
+		
+		validateBeforeUpdateRejectPriceStatus(formId);
+		
+		updateStockBackToInventory(exportingForm);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,20,true,true);
 		
 		return result;
 	}
 	
 	
 	
+	
+	
+	
+	public ExportingFormStatusDTO updatePayingStatus(Integer formId) throws ExportingFormNotFoundException {
+		
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		validateOperator(exportingForm,true);
+		
+		validateBeforeUpdatePayingStatus(formId);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,4,true,true);
+		
+		return result;
+	}
+	
+	public ExportingFormStatusDTO updatePayedStatus(Integer formId,
+			 String transporterCode,
+			 String secretKey) throws ExportingFormNotFoundException, TransporterNotFoundException {
+		
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		Transporter transporter = getTransporter(transporterCode);
+		
+		authenticationForTransporter(transporter,secretKey);
+		
+		validateExportingFormAndTransporter(exportingForm,transporterCode);
+		
+		validateBeforeUpdateStatusPayed(formId);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,5,false,false);
+		
+		return result;
+	}
+	
+	public ExportingFormStatusDTO updateGivingProductStatus(Integer formId) throws ExportingFormNotFoundException {
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		validateOperator(exportingForm,true);
+		
+		validateBeforeUpdateGivingProductStatus(formId);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,6,true,true);
+		
+		return result;
+	}
+	
+	public ExportingFormStatusDTO updateShippingStatusByTransporter(
+			 Integer formId,
+			 String transporterCode,
+			 String secretKey) throws ExportingFormNotFoundException, TransporterNotFoundException{
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		Transporter transporter = getTransporter(transporterCode);
+		
+		authenticationForTransporter(transporter,secretKey);
+		
+		validateExportingFormAndTransporter(exportingForm,transporterCode);
+		
+		validateBeforeUpdateShippingStatus(formId);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,7,false,false);
+		
+		return result;	
+	}
+	
+	
+	public ExportingFormStatusDTO updateArrivingStatusByTransporter(
+			 Integer formId,
+			 String transporterCode,
+			 String secretKey
+			)throws ExportingFormNotFoundException, TransporterNotFoundException {
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		Transporter transporter = getTransporter(transporterCode);
+		
+		authenticationForTransporter(transporter,secretKey);
+		
+		validateExportingFormAndTransporter(exportingForm,transporterCode);
+		
+		validateBeforeUpdateArrivingStatus(formId);
+		
+		ExportingFormStatusDTO result = updateStatus(exportingForm,8,false,false);
+		
+		return result;
+	}
+	
+	
+	@Transactional()
+	public ExportingFormStatusDTO updateFinishStatusByInventory(Integer formId) throws ExportingFormNotFoundException {
+		ExportingForm exportingForm = getExportingForm(formId);
+		
+		validateOperator(exportingForm,false);
+		
+		validateBeforeUpdateFinishStatus(formId);
+		
+		updateStockForMoveToInventory(exportingForm);
+		
+		exportingForm.setCompletedAt(LocalDateTime.now());
+		InventoryEmployee inventoryEmployee = inventoryEmployeeRepository.findById(UtilityGlobal.getIdOfCurrentLoggedUser()).get();
+		exportingForm.setReceiveEmployee(inventoryEmployee);
+		
+		ExportingForm savedExportingForm =  exportingFormRepository.save(exportingForm);
+		
+		ExportingFormStatusDTO result = updateStatus(savedExportingForm,9,true,false);
+		
+		return result;
+	}
+	
+	public QuotePriceInformationAggregator getQuotePriceInformation(Integer formId) throws ExportingFormNotFoundException {
+		
+		ExportingForm exportingForm = getExportingForm(formId);
+
+		boolean hasQuote = exportingFormStatusRepository.hasReviewDecisionOrReject(formId);
+		QuotePriceInformationAggregator result = new QuotePriceInformationAggregator();
+		result.setHasQuote(hasQuote);
+
+		if (!hasQuote) {
+			return result;
+		}
+
+		boolean isAccepted = exportingFormStatusRepository.hasReviewDecidedTransport(formId);
+		result.setReject(!isAccepted);
+
+		QuotePriceData quotePriceData = exportingForm.getQuotePriceData();
+		result.setQuotePriceData(new QuotePriceDataDTO(quotePriceData));
+		if (isAccepted) {
+			Long totalQuantity = exportingFormDetailRepository.getTotalQuantityByFormId(formId);
+			result.setTotalQuantity(totalQuantity);
+			result.setTotalValueWithoutDiscount(
+					calculateShippingFeeQuotedByTransporterWithoutDiscount(formId, quotePriceData));
+			result.setTotalValueWithDiscount(
+					calculateShippingFeeQuotedByTransporterWithDiscount(formId, quotePriceData));
+		}
+		return result;
+	}
+	
+	
+	private void validateBeforeUpdateFinishStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"FINISH","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","The inventory has already been rejected this exporting form");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+		
+		ensureStatusContains(statusesSet,"PAYING","This exporting form is not payed by inventory");
+		
+		ensureStatusContains(statusesSet,"PAYED","This exporting form is comfirmed paying by the transporter");
+		
+		ensureStatusContains(statusesSet,"GIVING_PRODUCT","The inventory does not give product to transporter");
+		
+		ensureStatusContains(statusesSet,"SHIPPING","The transporter is not shipping product to target inventory");
+		
+		ensureStatusContains(statusesSet,"ARRIVING","The transporter does not arrived at the target inventory");
+
+	}
+	
+	
+	private void validateBeforeUpdateArrivingStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"ARRIVING","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","The inventory has already been rejected this exporting form");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+		
+		ensureStatusContains(statusesSet,"PAYING","This exporting form is not payed by inventory");
+		
+		ensureStatusContains(statusesSet,"PAYED","This exporting form is comfirmed paying by the transporter");
+		
+		ensureStatusContains(statusesSet,"GIVING_PRODUCT","The inventory does not give product to transporter");
+		
+		ensureStatusContains(statusesSet,"SHIPPING","The transporter is not shipping product to target inventory");
+
+	}
+	
+	private void validateBeforeUpdateShippingStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"SHIPPING","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","The inventory has already been rejected this exporting form");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+		
+		ensureStatusContains(statusesSet,"PAYING","This exporting form is not payed by inventory");
+		
+		ensureStatusContains(statusesSet,"PAYED","This exporting form is comfirmed paying by the transporter");
+		
+		ensureStatusContains(statusesSet,"GIVING_PRODUCT","The inventory does not give product to transporter");
+
+	}
+	
+	private void validateBeforeUpdateGivingProductStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"GIVING_PRODUCT","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","The inventory has already been rejected this exporting form");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+		
+		ensureStatusContains(statusesSet,"PAYING","This exporting form is not payed by inventory");
+		
+		ensureStatusContains(statusesSet,"PAYED","This exporting form is comfirmed paying by the transporter");
+	}
+	
+	private void validateBeforeUpdateRejectPriceStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"ACCEPT_PRICE","The inventory has already been accept shipping price of this exporting form");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+	}
+	
+	private void validateBeforeUpdateStatusAcceptPrice(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"ACCEPT_PRICE","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","The inventory has already been rejected this exporting form");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+	}
+	
+	
+	private void validateOperator(ExportingForm exportingForm, boolean operatedByEmployeeInFromInventory) {
+		
+		Integer inventoryIdOfCurrentLoggedUser = UtilityGlobal.getInventoryIdOfCurrentLoggedUser();
+		
+		if(operatedByEmployeeInFromInventory) {
+			
+			Integer inventoryIdOfFromInventory = exportingForm.getMoveFromInventory().getId();
+			
+			if(!inventoryIdOfCurrentLoggedUser.equals(inventoryIdOfFromInventory)) {
+				throw new IllegalStateException("You do not have permission for this exporting form");
+			}
+			
+			
+		}else {
+			
+			Integer inventoryIdOfToInventory = exportingForm.getMoveToInventory().getId();
+			
+			if(!inventoryIdOfCurrentLoggedUser.equals(inventoryIdOfToInventory)) {
+				throw new IllegalStateException("You do not have permission for this exporting form");
+			}
+			
+			
+		}
+		
+	}
+	
+	
+	private void updateStockBackToInventory(ExportingForm exportingForm) {
+		
+		Inventory fromInventory = exportingForm.getMoveFromInventory();
+		
+		List<ExportingFormDetailOverviewDTO> details = exportingFormDetailRepository.getAllDetailsById(exportingForm.getId());
+		
+		List<Stocking> stockings = new ArrayList<>();
+		
+		for(ExportingFormDetailOverviewDTO detail : details) {
+			String sku = detail.getSku();
+			Integer quantity = detail.getQuantity();
+			
+			Stocking stocking = stockingRepository.findById(new StockingId(fromInventory.getId(), sku)).get();
+			stocking.setQuantity(stocking.getQuantity() + quantity);
+			stockings.add(stocking);
+		}
+		
+		stockingRepository.saveAll(stockings);
+	}
+	
+	private void validateBeforeUpdateStatusPayed(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"PAYED","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","This exporting form have already been rejected");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+		
+		ensureStatusContains(statusesSet,"PAYING","This exporting form is not payed by inventory");
+
+	}
+	
+	private void validateBeforeUpdatePayingStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"PAYING","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This exporting form have already been rejected");
+		
+		ensureStatusNotContains(statusesSet,"REJECT_PRICE","This exporting form have already been rejected");
+
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		ensureStatusContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form is not quoted by transpoter");
+		
+		ensureStatusContains(statusesSet,"ACCEPT_PRICE","This exporting form is not accepted price by the inventory");
+
+		
+	}
+	
+	
+	private void validateBeforeUpdateReviewAndRejectedStatus(Integer formId) {
+		List<String> statuses = exportingFormStatusRepository.getStatusNamesByFormId(formId);
+		
+		Set<String> statusesSet = new HashSet<>(statuses);
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_REJECT","This status already exist");
+		
+		ensureStatusNotContains(statusesSet,"REVIEW_DECIDED_TRANSPORT","This exporting form alreaduy be accepted");
+		
+		ensureStatusContains(statusesSet,"CREATED","This exporting form is not initialized");
+		
+		
+	}
 	
 	
 	private void validateBeforeUpdateAcceptAndTransferStatus(Integer formId) {
@@ -328,6 +759,44 @@ public class ExportingFormService {
 		exportingFormDetailRepository.saveAll(details);
 		
 		updateStockForMoveFromInventory(details,savedExportingForm.getMoveFromInventory());
+		
+		
+	}
+	
+	private void updateStockForMoveToInventory(ExportingForm exportingForm) {
+		
+		Inventory moveToInventory = exportingForm.getMoveToInventory();
+		Integer inventoryId = moveToInventory.getId();
+		
+		List<ExportingFormDetailOverviewDTO> details = exportingFormDetailRepository.getAllDetailsById(exportingForm.getId());
+		
+		List<Stocking> stockings = new ArrayList<>();
+		
+		for(ExportingFormDetailOverviewDTO detail : details) {
+			
+			String sku = detail.getSku();
+			
+			Integer quantity = detail.getQuantity();
+			
+			Optional<ProductVariant> productVariant = productVariantRepository.findBySkuCode(sku);
+			
+			Optional<Stocking> stockingOPT = stockingRepository.findById(new StockingId(inventoryId, sku));
+			
+			if(stockingOPT.isEmpty()) {
+				Stocking newStocking = new Stocking();
+				newStocking.setId(new StockingId(inventoryId, sku));
+				newStocking.setQuantity(quantity);
+				newStocking.setInventory(moveToInventory);
+				newStocking.setProductVariant(productVariant.get());
+				stockings.add(newStocking);
+			}else {
+				Stocking oldStocking = stockingOPT.get();
+				oldStocking.setQuantity(oldStocking.getQuantity() + quantity);
+				stockings.add(oldStocking);
+			}
+		}
+		
+		stockingRepository.saveAll(stockings);
 		
 		
 	}

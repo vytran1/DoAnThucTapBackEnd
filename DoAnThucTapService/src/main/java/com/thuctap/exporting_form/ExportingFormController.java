@@ -88,9 +88,165 @@ public class ExportingFormController {
 			} 
 	}
 	
+	@PostMapping("/transporter/{formId}/{transporter}/status/reject")
+	public ResponseEntity<?> rejectQuotationByTransporter(
+			@PathVariable("formId") Integer formId,
+			@PathVariable("transporter") String transporter,
+			@RequestHeader("X-SECRET-KEY") String secretKey,
+			@RequestBody QuotePriceData quotePriceData
+			){
+		
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateReviewAndRejectedStatusByTransporter(formId, transporter, secretKey, quotePriceData);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException | TransporterNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}  catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/{formId}/status/paying")
+	public ResponseEntity<?> updatePayingStatusByInventory(@PathVariable("formId") Integer formId){
+		
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updatePayingStatus(formId);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}  catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/transporter/{formId}/{transporter}/status/payed")
+	public ResponseEntity<?> updatePayedStatusByTransporter(
+			@PathVariable("formId") Integer formId,
+			@PathVariable("transporter") String transporter,
+			@RequestHeader("X-SECRET-KEY") String secretKey
+			){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updatePayedStatus(formId, transporter, secretKey);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException | TransporterNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+		
+	}
+	
+	
+	@PostMapping("/{formId}/status/accept_price")
+	public ResponseEntity<?> updateAcceptPriceStatus(@PathVariable("formId") Integer formId){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateAcceptPriceStatusByInventory(formId);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/{formId}/status/reject_price")
+	public ResponseEntity<?> updateRejectPriceStatus(@PathVariable("formId") Integer formId){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateRejectPriceStatusByInventory(formId);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/{formId}/status/giving_product")
+	public ResponseEntity<?> updateGivingProductStatus(@PathVariable("formId") Integer formId){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateGivingProductStatus(formId);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/transporter/{formId}/{transporter}/status/shipping")
+	public ResponseEntity<?> updateShippingStatusByTransporter(
+			@PathVariable("formId") Integer formId,
+			@PathVariable("transporter") String transporter,
+			@RequestHeader("X-SECRET-KEY") String secretKey){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateShippingStatusByTransporter(formId, transporter, secretKey);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException | TransporterNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	
+	@PostMapping("/transporter/{formId}/{transporter}/status/arriving")
+	public ResponseEntity<?> updateArrivingStatusByTransporter(
+			@PathVariable("formId") Integer formId,
+			@PathVariable("transporter") String transporter,
+			@RequestHeader("X-SECRET-KEY") String secretKey){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateArrivingStatusByTransporter(formId, transporter, secretKey);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException | TransporterNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+	
+	@PostMapping("/{formId}/status/finish")
+	public ResponseEntity<?> updateFinishStatusByInventory(@PathVariable("formId") Integer formId){
+		
+		try {
+			ExportingFormStatusDTO result = exportingFormService.updateFinishStatusByInventory(formId);
+			return ResponseEntity.ok(result);
+		} catch (ExportingFormNotFoundException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		} catch (IllegalStateException e) {
+			log.error(e.getMessage(), e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+		
+	}
+	
+	
 	@GetMapping("/{formId}/quote_price")
 	public ResponseEntity<?> getQuoteShippingPriceInformation(@PathVariable("formId") Integer formId){
-		
 		try {
 			QuotePriceInformationAggregator result = exportingFormService.getQuotePriceInformation(formId);
 			return ResponseEntity.ok(result);
@@ -98,8 +254,9 @@ public class ExportingFormController {
 			log.error(e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		
 	}
+	
+	
 	
 	
 }

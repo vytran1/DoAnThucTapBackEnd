@@ -16,6 +16,7 @@ public class QuotePriceData {
 	private BigDecimal pricePerKilometer;
 	private BigDecimal pricePerItem;
 	private BigDecimal discount;
+	private String reason;
 	
 	
 	
@@ -96,6 +97,12 @@ public class QuotePriceData {
 	}
 	public void setTotalKilometer(Integer totalKilometer) {
 		this.totalKilometer = totalKilometer;
+	}
+	public String getReason() {
+		return reason;
+	}
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 	
 	
