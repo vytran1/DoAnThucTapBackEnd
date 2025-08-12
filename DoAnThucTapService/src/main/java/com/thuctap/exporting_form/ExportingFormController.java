@@ -1,5 +1,7 @@
 package com.thuctap.exporting_form;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thuctap.common.exceptions.ExportingFormNotFoundException;
@@ -20,8 +23,10 @@ import com.thuctap.common.exceptions.TransporterNotFoundException;
 import com.thuctap.common.exporting_form.QuotePriceData;
 import com.thuctap.exporting_form.dto.CreateExportingFormRequest;
 import com.thuctap.exporting_form.dto.ExportingFormOverviewDTO;
+import com.thuctap.exporting_form.dto.ExportingFormPageAggregator;
 import com.thuctap.exporting_form.dto.ExportingFormStatusDTO;
 import com.thuctap.exporting_form.dto.QuotePriceInformationAggregator;
+import com.thuctap.importing_form.dto.ImportingFormPageAggregator;
 
 @RestController
 @RequestMapping("/api/exporting_form")
@@ -32,6 +37,25 @@ public class ExportingFormController {
 	
 	@Autowired
 	private ExportingFormService exportingFormService;
+	
+	
+	@GetMapping("/search")
+	public ResponseEntity<ExportingFormPageAggregator> search(
+			@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+			@RequestParam(value = "sortField", defaultValue = "id") String sortField,
+			@RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
+			@RequestParam(value = "startDate", required = false) OffsetDateTime startDate,
+			@RequestParam(value = "endDate", required = false) OffsetDateTime endDate
+			){
+		
+		 LocalDateTime start = startDate != null ? startDate.toLocalDateTime() : null;
+		 LocalDateTime end = endDate != null ? endDate.toLocalDateTime() : null;
+		 
+		 ExportingFormPageAggregator result = exportingFormService.search(start, end, pageNum, pageSize, sortField, sortDir);
+		
+		 return ResponseEntity.ok(result);
+	}
 	
 	
 	

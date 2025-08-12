@@ -11,10 +11,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import com.thuctap.common.exceptions.ExportingFormNotFoundException;
 import com.thuctap.common.exceptions.TransporterNotFoundException;
@@ -30,10 +34,14 @@ import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.common.stocking.Stocking;
 import com.thuctap.common.stocking.StockingId;
 import com.thuctap.common.transporter.Transporter;
+import com.thuctap.event.EventPublisher;
+import com.thuctap.event.RabbitMQConfig;
 import com.thuctap.exporting_form.dto.CreateExportingFormDetailDTO;
 import com.thuctap.exporting_form.dto.CreateExportingFormRequest;
 import com.thuctap.exporting_form.dto.ExportingFormDetailOverviewDTO;
 import com.thuctap.exporting_form.dto.ExportingFormOverviewDTO;
+import com.thuctap.exporting_form.dto.ExportingFormPageAggregator;
+import com.thuctap.exporting_form.dto.ExportingFormPageDTO;
 import com.thuctap.exporting_form.dto.ExportingFormStatusDTO;
 import com.thuctap.exporting_form.dto.QuotePriceDataDTO;
 import com.thuctap.exporting_form.dto.QuotePriceInformationAggregator;
@@ -74,7 +82,11 @@ public class ExportingFormService {
 	@Autowired
 	private InventoryEmployeeRepository inventoryEmployeeRepository;
 	
+	@Autowired
+	private EventPublisher eventPublisher;
 	
+	@Autowired
+	private ApplicationEventPublisher springPublisher;
 	
 	
 	@Transactional()
@@ -88,6 +100,31 @@ public class ExportingFormService {
 		saveExportingFormDetail(savedExportingForm,request);
 		
 		updateStatus(savedExportingForm,1,true,true);
+		
+		springPublisher.publishEvent(new ExportingFormCreatedEvent(savedExportingForm.getId()));
+	}
+	
+	
+	public ExportingFormPageAggregator search(
+			LocalDateTime startDate, 
+			LocalDateTime endDate, 
+			int pageNum, 
+			int pageSize, 
+			String sortField, 
+			String sortDir) {
+		
+		Pageable pageable = UtilityGlobal.setUpPageRequest(pageNum,pageSize, sortField, sortDir);
+		
+		Integer inventoryId = UtilityGlobal.getInventoryIdOfCurrentLoggedUser();
+		
+		Page<ExportingFormPageDTO> pages = exportingFormRepository.search(startDate, endDate, inventoryId, pageable);
+		
+		ExportingFormPageAggregator result = new ExportingFormPageAggregator();
+		
+		result.setExportingForms(pages.getContent());
+		result.setPageDTO(UtilityGlobal.buildPageDTO(sortField, sortDir, pages));
+		
+		return result;
 	}
 	
 	

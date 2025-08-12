@@ -50,7 +50,7 @@ public class InventoryOrderController {
 	public ResponseEntity<InventoryOrderPageDTOAggregator> search(
 				
 				@RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
-				@RequestParam(value = "pageSize", defaultValue = "3") int pageSize,
+				@RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
 				@RequestParam(value = "sortField", defaultValue = "id") String sortField,
 				@RequestParam(value = "sortDir", defaultValue = "asc") String sortDir,
 				@RequestParam(value = "startDate", required = false) OffsetDateTime startDate,
