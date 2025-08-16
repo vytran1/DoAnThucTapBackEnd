@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,7 @@ import com.thuctap.common.product_variant.ProductVariant;
 import com.thuctap.common.stocking.Stocking;
 import com.thuctap.common.stocking.StockingId;
 import com.thuctap.common.supplier.Supplier;
+import com.thuctap.exporting_form.ExportingFormCreatedEvent;
 import com.thuctap.importing_form.ImportingFormDetailRepository;
 import com.thuctap.importing_form.ImportingFormMapper;
 import com.thuctap.importing_form.ImportingFormRepository;
@@ -114,7 +116,8 @@ public class InventoryOrderService {
 	@Autowired
 	private AuditRepository auditRepository;
 	
-	
+	@Autowired
+	private ApplicationEventPublisher springPublisher;
 	
 	
 	@Transactional(rollbackFor = {ProductVariantSkuNotFoundException.class,StatusNotFoundException.class})
@@ -128,7 +131,7 @@ public class InventoryOrderService {
 		saveInitStatus(savedOrder);
 		
 		
-		
+		springPublisher.publishEvent(new InventoryOrderCreatedEvent(savedOrder.getId()));
 		
 		
 	}

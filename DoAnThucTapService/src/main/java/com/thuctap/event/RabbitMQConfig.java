@@ -14,7 +14,11 @@ public class RabbitMQConfig {
 	
 	public static final String ROUTING_TRANSFER_CREATED = "transfer.created";
 	
+	public static final String ROUTING_ORDER_CREATED = "inventory_order.created";
+	
 	public static final String QUEUE_MAIL_TRANSFER_CREATED = "mail.transfer.created";
+	
+	public static final String QUEUE_MAIL_ORDER_CREATED = "mail.order.created";
 	
 	@Bean
 	public TopicExchange eventExchange() {
@@ -27,11 +31,25 @@ public class RabbitMQConfig {
 	}
 	
 	@Bean
+	public Queue mailOrderCreatedQueue() {
+		return new Queue(QUEUE_MAIL_ORDER_CREATED,true);
+	}
+	
+	
+	@Bean
     public Binding bindingMailTransferCreated() {
         return BindingBuilder.bind(mailTransferCreatedQueue())
                 .to(eventExchange())
                 .with(ROUTING_TRANSFER_CREATED);
     }
+	
+	@Bean
+	public Binding bindingMailOrderCreated() {
+		return BindingBuilder.bind(mailOrderCreatedQueue())
+				.to(eventExchange())
+				.with(ROUTING_ORDER_CREATED);
+	}
+	
 	
 	
 	

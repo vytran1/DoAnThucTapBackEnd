@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.thuctap.common.setting.Setting;
 import com.thuctap.exporting_form.dto.ExportingFormDetailOverviewDTO;
+import com.thuctap.inventory_order.dto.InventoryOrderDetailForOverviewDTO;
 
 public class EmailTemplateFactory {
 	
@@ -18,6 +19,8 @@ public class EmailTemplateFactory {
 	        switch (type) {
 	            case "TRANSFER":
 	                return buildTransferTemplate(data);
+	            case "INVENTORY_ORDER":
+	            	return buildOrderTemplate(data);
 	            default:
 	                throw new IllegalArgumentException("Unknown email type: " + type);
 	        }
@@ -50,6 +53,37 @@ public class EmailTemplateFactory {
 			String body = bodyTemplate.replace("<!-- ROWS -->", rows.toString());
 
 			return new EmailContent(subject, body);
+	 }
+	 
+	 private static EmailContent buildOrderTemplate(Map<String,Object> data) {
+		 
+		 Integer formId = (Integer) data.get("formId");
+		 
+		 List<Setting> templateSettings = (List<Setting>) data.get("mailTemplate");
+		 
+		 List<InventoryOrderDetailForOverviewDTO> details = (List<InventoryOrderDetailForOverviewDTO>) data.get("details");
+		 
+		 Map<String, String> templateMap = templateSettings.stream()
+					.collect(Collectors.toMap(Setting::getKey, Setting::getValue));
+		 
+		 String subjectTemplate = templateMap.get("ORDER_FORM_SUBJECT");
+		 String bodyTemplate = templateMap.get("ORDER_FORM_CONTENT");
+		 
+		 String subject = subjectTemplate.replace("<code>", String.valueOf(formId));
+		 
+		 StringBuilder rows = new StringBuilder();
+		 
+		 for(InventoryOrderDetailForOverviewDTO detail : details) {
+			 rows.append("<tr>")
+			 					.append("<td>").append(detail.getSku()).append("</td>")
+			 					.append("<td>").append(detail.getQuantity()).append("</td>")
+			 					.append("<td>").append(detail.getExpectedPrice()).append("</td>")
+			 	.append("</tr>");
+		 }
+		 
+		 String body = bodyTemplate.replace("<!-- ROWS -->",rows.toString());
+		 	
+		 return new EmailContent(subject, body);
 	 }
 	 
 	 
